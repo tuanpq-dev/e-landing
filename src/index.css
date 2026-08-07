@@ -3,7 +3,7 @@
 :root {
   --sans: 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
+
   font-family: 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-size: 13px;
   line-height: 1.5;
@@ -18,13 +18,19 @@
   font-family: 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
-body, html {
+html {
+  /* Luôn hiện scrollbar để tránh layout shift khi chuyển trang (CLS) */
+  overflow-y: scroll;
+}
+
+body {
   margin: 0;
   padding: 0;
   font-family: 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-size: 13px;
   color: #333333;
   background-color: #f8f9fa;
+  overflow: hidden;
 }
 
 /* Antd font overrides */
@@ -45,6 +51,13 @@ a {
   text-decoration: none;
 }
 
-p, span, div, li, a, label, input, button {
+p,
+span,
+div,
+li,
+a,
+label,
+input,
+button {
   font-size: 13px;
 }
