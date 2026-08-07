@@ -1,6 +1,6 @@
 import { Layout } from "antd";
-import { Footer } from "antd/es/layout/layout";
 import AppHeader from "./AppHeader";
+import AppFooter from "./AppFooter";
 
 type AppLayoutProps = React.PropsWithChildren;
 
@@ -13,7 +13,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 {children}
             </Layout.Content>
 
-            <Footer style={{ textAlign: 'center' }} />
+            <AppFooter />
         </Layout>
     )
 }
