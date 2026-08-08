@@ -301,12 +301,6 @@ function AppHeader() {
                             Sản phẩm
                         </li>
                         <li
-                            className={`sea-nav-route ${isCurrentRoute("news") ? "active" : ""}`}
-                            onClick={() => navigate(`/${config.routes.NEWS}`)}
-                        >
-                            Tin tức
-                        </li>
-                        <li
                             className={`sea-nav-route ${isCurrentRoute("contact") ? "active" : ""}`}
                             onClick={() => navigate(`/${config.routes.CONTACT}`)}
                         >
