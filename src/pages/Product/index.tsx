@@ -2,6 +2,8 @@ import { useState } from "react";
 import { DownOutlined, RightOutlined, StarFilled } from "@ant-design/icons";
 import "./Product.css";
 import { categories, colors, priceRanges, products, sizes } from "./mockProduct";
+import { useNavigate } from "react-router";
+import config from "../../config/config";
 
 type TypeProduct = {
     id: string;
@@ -178,7 +180,7 @@ function formatPrice(n: number) {
     return n.toLocaleString('vi-VN') + 'đ';
 }
 
-function ProductCard({ product }: { product: TypeProduct }) {
+function ProductCard({ product, onDetail, }: { product: TypeProduct, onDetail: (id: string) => void }) {
     const discount = Math.round((1 - product.price / product.originalPrice) * 100);
     return (
         <div className="product-card">
@@ -192,7 +194,7 @@ function ProductCard({ product }: { product: TypeProduct }) {
                 {product.isNew && <span className="product-card-badge">Mới</span>}
                 <span className="product-card-discount">-{discount}%</span>
                 <div className="product-card-overlay">
-                    <button className="product-card-btn">Chọn sản phẩm</button>
+                    <button className="product-card-btn" onClick={() => onDetail(product.id)}>Chọn sản phẩm</button>
                 </div>
             </div>
             <div className="product-card-body">
@@ -219,23 +221,28 @@ function ProductCard({ product }: { product: TypeProduct }) {
     );
 }
 
-function ProductGrid({ products }: { products: TypeProduct[] }) {
+function ProductGrid({ products, onDetail }: { products: TypeProduct[], onDetail: (id: string) => void }) {
     return (
         <div className="product-grid">
             {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p.id} product={p} onDetail={onDetail} />
             ))}
         </div>
     );
 }
 
 function Product() {
+    const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState("all");
 
     const filtered =
         activeCategory === "all"
             ? products
             : products.filter((p: any) => p.category === activeCategory);
+
+    const handleDetail = (id: string) => {
+        navigate(config.routes.PRODUCT_DETAIL(id))
+    }
 
     return (
         <div className="product-page">
@@ -244,7 +251,7 @@ function Product() {
                 onCategoryChange={setActiveCategory}
             />
             <div className="product-content">
-                <ProductGrid products={filtered} />
+                <ProductGrid products={filtered} onDetail={handleDetail} />
             </div>
         </div>
     );
