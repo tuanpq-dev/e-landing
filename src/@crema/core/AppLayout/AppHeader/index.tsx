@@ -10,7 +10,7 @@ import {
     ShoppingCartOutlined,
     UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Dropdown, Layout, Popover } from "antd";
+import { Avatar, Button, Dropdown, Layout, Popover, message } from "antd";
 import type { MenuProps } from "antd";
 import { useLocation, useNavigate } from "react-router";
 import config from "../../../../config/config";
@@ -115,7 +115,10 @@ function AppHeader() {
             key: "logout",
             icon: <LogoutOutlined />,
             label: "Đăng xuất",
-            onClick: () => navigate(`/${config.routes.LOGIN}`),
+            onClick: () => {
+                message.info("Đã đăng xuất tài khoản thành công!");
+                navigate(`/${config.routes.LOGIN}`);
+            },
         },
     ];
 
@@ -198,8 +201,8 @@ function AppHeader() {
                                 Đăng ký
                             </span>
                             <span className="sea-account-divider">|</span>
-                            <Dropdown menu={{ items: userMenuItems }} trigger={["click", "hover"]} placement="bottomRight">
-                                <span className="sea-user-badge">
+                            <Dropdown menu={{ items: userMenuItems }} trigger={["hover"]} placement="bottomRight">
+                                <span className="sea-user-badge" onClick={() => navigate(`/${config.routes.LOGIN}`)}>
                                     <Avatar size={22} icon={<UserOutlined />} style={{ backgroundColor: "#22242a" }} />
                                     <span>Đăng nhập</span>
                                 </span>

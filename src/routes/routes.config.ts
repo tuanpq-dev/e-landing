@@ -11,6 +11,7 @@ const routes = {
     ORDER: 'order',
 
     RESGISTER: 'register',
+    REGISTER: 'register',
 
     LOGIN: 'login',
 
