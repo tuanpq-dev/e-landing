@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Checkbox, message } from "antd";
+import { Form, Button, Checkbox, message } from "antd";
 import {
     UserOutlined,
     MailOutlined,
@@ -9,7 +9,10 @@ import {
     CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router";
+import FormInput from "../../@crema/core/Form/FormInput";
 import config from "../../config/config";
+import { URL } from "../../config/apiUrl";
+import axiosClient from "../../api/axiosClient";
 import "../Auth/Auth.css";
 
 interface RegisterFormValues {
@@ -41,19 +44,26 @@ const Register: React.FC = () => {
     const strength = getPasswordStrength(passwordValue);
 
     // Handle Form Submit
-    const onFinish = (values: RegisterFormValues) => {
+    const onFinish = async (values: RegisterFormValues) => {
         setLoading(true);
-        console.log("Register submitted:", values);
+        try {
+            const res: any = await axiosClient.post(`${URL}/auth/register`, {
+                email: values.email,
+                password: values.password,
+                name: values.fullName,
+            });
 
-        setTimeout(() => {
-            setLoading(false);
             message.success({
-                content: "Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.",
+                content: res?.message || "Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.",
                 icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
                 duration: 4,
             });
             navigate(`/${config.routes.LOGIN}`);
-        }, 1300);
+        } catch (err: any) {
+            message.error(typeof err === "string" ? err : err.message || "Đăng ký thất bại. Vui lòng thử lại!");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -96,71 +106,60 @@ const Register: React.FC = () => {
                     autoComplete="off"
                 >
                     {/* Full Name */}
-                    <Form.Item
+                    <FormInput
+                        fieldName="fullName"
                         label="Họ và tên"
-                        name="fullName"
+                        prefix={<UserOutlined />}
+                        placeholder="Nguyễn Văn A"
+                        size="large"
                         rules={[
                             { required: true, message: "Vui lòng nhập họ và tên!" },
                             { min: 2, message: "Họ tên phải chứa ít nhất 2 ký tự!" }
                         ]}
-                    >
-                        <Input
-                            prefix={<UserOutlined />}
-                            placeholder="Nguyễn Văn A"
-                            size="large"
-                        />
-                    </Form.Item>
+                    />
 
                     {/* Email & Phone side by side */}
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                        <Form.Item
+                        <FormInput
+                            fieldName="email"
                             label="Địa chỉ Email"
-                            name="email"
+                            prefix={<MailOutlined />}
+                            placeholder="name@example.com"
+                            size="large"
                             rules={[
                                 { required: true, message: "Vui lòng nhập Email!" },
                                 { type: "email", message: "Email không hợp lệ!" }
                             ]}
-                        >
-                            <Input
-                                prefix={<MailOutlined />}
-                                placeholder="name@example.com"
-                                size="large"
-                            />
-                        </Form.Item>
+                        />
 
-                        <Form.Item
+                        <FormInput
+                            fieldName="phone"
                             label="Số điện thoại"
-                            name="phone"
+                            prefix={<PhoneOutlined />}
+                            placeholder="0912345678"
+                            size="large"
                             rules={[
                                 { required: true, message: "Vui lòng nhập số điện thoại!" },
                                 { pattern: /^[0-9]{10,11}$/, message: "Số điện thoại gồm 10-11 chữ số!" }
                             ]}
-                        >
-                            <Input
-                                prefix={<PhoneOutlined />}
-                                placeholder="0912345678"
-                                size="large"
-                            />
-                        </Form.Item>
+                        />
                     </div>
 
                     {/* Password */}
-                    <Form.Item
+                    <FormInput
+                        fieldName="password"
                         label="Mật khẩu"
-                        name="password"
+                        isPassword
+                        prefix={<LockOutlined />}
+                        placeholder="Tạo mật khẩu an toàn (tối thiểu 6 ký tự)"
+                        size="large"
+                        hasFeedback
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPasswordValue(e.target.value)}
                         rules={[
                             { required: true, message: "Vui lòng nhập mật khẩu!" },
                             { min: 6, message: "Mật khẩu tối thiểu 6 ký tự!" }
                         ]}
-                        hasFeedback
-                    >
-                        <Input.Password
-                            prefix={<LockOutlined />}
-                            placeholder="Tạo mật khẩu an toàn (tối thiểu 6 ký tự)"
-                            size="large"
-                            onChange={(e) => setPasswordValue(e.target.value)}
-                        />
-                    </Form.Item>
+                    />
 
                     {/* Password Strength Indicator */}
                     {passwordValue && (
@@ -178,9 +177,13 @@ const Register: React.FC = () => {
                     )}
 
                     {/* Confirm Password */}
-                    <Form.Item
+                    <FormInput
+                        fieldName="confirmPassword"
                         label="Xác nhận mật khẩu"
-                        name="confirmPassword"
+                        isPassword
+                        prefix={<LockOutlined />}
+                        placeholder="Nhập lại mật khẩu vừa đặt"
+                        size="large"
                         dependencies={["password"]}
                         hasFeedback
                         rules={[
@@ -194,13 +197,7 @@ const Register: React.FC = () => {
                                 },
                             }),
                         ]}
-                    >
-                        <Input.Password
-                            prefix={<LockOutlined />}
-                            placeholder="Nhập lại mật khẩu vừa đặt"
-                            size="large"
-                        />
-                    </Form.Item>
+                    />
 
                     {/* Terms Agreement Checkbox */}
                     <Form.Item

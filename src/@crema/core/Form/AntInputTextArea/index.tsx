@@ -1,31 +1,29 @@
-import { Input } from "antd";
+import { Form, Input, type FormItemProps } from "antd";
 
 const { TextArea } = Input;
 
 type InputTextAreaProps = {
-    fieldName: string;
+    fieldName: FormItemProps["name"];
     label: string;
     rows?: number;
     placeholder?: string;
-}
+    rules?: FormItemProps["rules"];
+};
 
 function AntInputTextArea({
     fieldName,
     label,
     rows = 4,
     placeholder = `Nhập ${label.toLocaleLowerCase()}`,
+    rules = [],
 }: InputTextAreaProps) {
     return (
-        <div className="input-textarea">
-            <label htmlFor={fieldName}>{label}</label>
-
+        <Form.Item name={fieldName} label={label} rules={rules}>
             <TextArea
-                id={fieldName}
-                name={fieldName}
                 rows={rows}
                 placeholder={placeholder}
             />
-        </div>
+        </Form.Item>
     );
 }
 
