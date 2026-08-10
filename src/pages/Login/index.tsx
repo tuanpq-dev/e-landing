@@ -1,54 +1,47 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Checkbox, Modal, message } from "antd";
+import { Form, Button, message } from "antd";
 import { MailOutlined, LockOutlined, SafetyOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
+import FormInput from "../../@crema/core/Form/FormInput";
 import config from "../../config/config";
+import { URL } from "../../config/apiUrl";
 import "../Auth/Auth.css";
+import axiosClient from "../../api/axiosClient";
 
 interface LoginFormValues {
     email: string;
     password: string;
-    remember: boolean;
+    remember?: boolean;
 }
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [forgotModalVisible, setForgotModalVisible] = useState(false);
-    const [forgotLoading, setForgotLoading] = useState(false);
-    const [forgotForm] = Form.useForm();
 
-    // Handle Form Submit
-    const onFinish = (values: LoginFormValues) => {
+    const onFinish = async (values: LoginFormValues) => {
         setLoading(true);
-        console.log("Login submitted:", values);
+        try {
+            const response: any = await axiosClient.post(`${URL}/auth/login`, values);
 
-        setTimeout(() => {
-            setLoading(false);
+            if (response.accessToken) {
+                localStorage.setItem("accessToken", response.accessToken);
+            }
+            if (response.user) {
+                localStorage.setItem("user", JSON.stringify(response.user));
+            }
+            window.dispatchEvent(new Event("auth-change"));
+
             message.success({
-                content: `Chào mừng bạn trở lại, ${values.email.split("@")[0]}! Đăng nhập thành công.`,
+                content: `Chào mừng bạn trở lại, ${response.user?.fullname || "khách hàng"}!`,
                 icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
                 duration: 3,
             });
-            // Direct to home page or previous page
-            navigate("/");
-        }, 1200);
-    };
 
-    // Handle Forgot Password Submit
-    const handleForgotSubmit = async () => {
-        try {
-            const values = await forgotForm.validateFields();
-            setForgotLoading(true);
-            
-            setTimeout(() => {
-                setForgotLoading(false);
-                setForgotModalVisible(false);
-                forgotForm.resetFields();
-                message.success(`Hướng dẫn đặt lại mật khẩu đã được gửi đến email: ${values.forgotEmail}`);
-            }, 1000);
-        } catch {
-            // Validation failed
+            navigate("/");
+        } catch (err: any) {
+            message.error(typeof err === "string" ? err : err.message || "Đăng nhập thất bại");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -93,49 +86,31 @@ const Login: React.FC = () => {
                     autoComplete="off"
                 >
                     {/* Email / Username Input */}
-                    <Form.Item
+                    <FormInput
+                        fieldName="email"
                         label="Email hoặc Tên đăng nhập"
-                        name="email"
+                        prefix={<MailOutlined />}
+                        placeholder="name@example.com"
+                        size="large"
                         rules={[
                             { required: true, message: "Vui lòng nhập Email hoặc Tên đăng nhập!" },
                             { type: "email", message: "Email không đúng định dạng!" }
                         ]}
-                    >
-                        <Input
-                            prefix={<MailOutlined />}
-                            placeholder="name@example.com"
-                            size="large"
-                        />
-                    </Form.Item>
+                    />
 
                     {/* Password Input */}
-                    <Form.Item
+                    <FormInput
+                        fieldName="password"
                         label="Mật khẩu"
-                        name="password"
+                        isPassword
+                        prefix={<LockOutlined />}
+                        placeholder="••••••••"
+                        size="large"
                         rules={[
                             { required: true, message: "Vui lòng nhập mật khẩu của bạn!" },
                             { min: 6, message: "Mật khẩu phải chứa ít nhất 6 ký tự!" }
                         ]}
-                    >
-                        <Input.Password
-                            prefix={<LockOutlined />}
-                            placeholder="••••••••"
-                            size="large"
-                        />
-                    </Form.Item>
-
-                    {/* Options Row */}
-                    <div className="auth-options">
-                        <Form.Item name="remember" valuePropName="checked" noStyle>
-                            <Checkbox>Ghi nhớ đăng nhập</Checkbox>
-                        </Form.Item>
-                        <span
-                            className="auth-forgot-link"
-                            onClick={() => setForgotModalVisible(true)}
-                        >
-                            Quên mật khẩu?
-                        </span>
-                    </div>
+                    />
 
                     {/* Submit Button */}
                     <Form.Item style={{ marginBottom: 0 }}>
@@ -190,7 +165,7 @@ const Login: React.FC = () => {
                         onClick={() => message.info("Tính năng Đăng nhập với Facebook đang được phát triển")}
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
                         <span>Facebook</span>
                     </button>
@@ -207,56 +182,6 @@ const Login: React.FC = () => {
                     </span>
                 </div>
             </div>
-
-            {/* Forgot Password Modal */}
-            <Modal
-                title="Khôi phục Mật khẩu"
-                open={forgotModalVisible}
-                onCancel={() => {
-                    setForgotModalVisible(false);
-                    forgotForm.resetFields();
-                }}
-                footer={[
-                    <Button
-                        key="cancel"
-                        onClick={() => {
-                            setForgotModalVisible(false);
-                            forgotForm.resetFields();
-                        }}
-                    >
-                        Hủy
-                    </Button>,
-                    <Button
-                        key="submit"
-                        type="primary"
-                        loading={forgotLoading}
-                        onClick={handleForgotSubmit}
-                        style={{ backgroundColor: "#22242a", borderColor: "#22242a" }}
-                    >
-                        Gửi liên kết khôi phục
-                    </Button>,
-                ]}
-            >
-                <p style={{ color: "#666e7a", fontSize: 13, marginBottom: 16 }}>
-                    Vui lòng nhập địa chỉ email đã đăng ký tài khoản của bạn. Chúng tôi sẽ gửi hướng dẫn cài đặt lại mật khẩu qua email.
-                </p>
-                <Form form={forgotForm} layout="vertical">
-                    <Form.Item
-                        name="forgotEmail"
-                        label="Email khôi phục"
-                        rules={[
-                            { required: true, message: "Vui lòng nhập email!" },
-                            { type: "email", message: "Email không hợp lệ!" }
-                        ]}
-                    >
-                        <Input
-                            prefix={<MailOutlined />}
-                            placeholder="nhap-email-cua-ban@gmail.com"
-                            size="large"
-                        />
-                    </Form.Item>
-                </Form>
-            </Modal>
         </div>
     );
 };

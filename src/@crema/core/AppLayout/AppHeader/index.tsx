@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     DownOutlined,
     FileTextOutlined,
@@ -14,9 +14,19 @@ import { Avatar, Button, Dropdown, Layout, Popover, message } from "antd";
 import type { MenuProps } from "antd";
 import { useLocation, useNavigate } from "react-router";
 import config from "../../../../config/config";
+import { URL } from "../../../../config/apiUrl";
+import axiosClient from "../../../../api/axiosClient";
 import "./AppHeader.css";
 
 const { Header } = Layout;
+
+interface UserInfo {
+    id?: number;
+    email?: string;
+    fullname?: string;
+    image?: string;
+    role?: string;
+}
 
 interface CategoryItem {
     id: string;
@@ -71,6 +81,57 @@ function AppHeader() {
     const [categoryOpen, setCategoryOpen] = useState(false);
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
+    const [user, setUser] = useState<UserInfo | null>(() => {
+        const savedUser = localStorage.getItem("user");
+        if (savedUser) {
+            try {
+                return JSON.parse(savedUser);
+            } catch {
+                return null;
+            }
+        }
+        return null;
+    });
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const token = localStorage.getItem("accessToken");
+            if (token) {
+                try {
+                    const res: any = await axiosClient.get(`${URL}/auth/me`);
+                    if (res) {
+                        setUser(res);
+                        localStorage.setItem("user", JSON.stringify(res));
+                    }
+                } catch {
+                    // Token expired or invalid
+                }
+            }
+        };
+
+        fetchUserData();
+
+        const handleAuthChange = () => {
+            const savedUser = localStorage.getItem("user");
+            if (savedUser) {
+                try {
+                    setUser(JSON.parse(savedUser));
+                } catch {
+                    setUser(null);
+                }
+            } else {
+                setUser(null);
+            }
+        };
+
+        window.addEventListener("auth-change", handleAuthChange);
+        window.addEventListener("storage", handleAuthChange);
+        return () => {
+            window.removeEventListener("auth-change", handleAuthChange);
+            window.removeEventListener("storage", handleAuthChange);
+        };
+    }, []);
+
     const handleSearch = () => {
         if (searchQuery.trim()) {
             navigate(`/${config.routes.PRODUCT}?search=${encodeURIComponent(searchQuery.trim())}`);
@@ -115,9 +176,19 @@ function AppHeader() {
             key: "logout",
             icon: <LogoutOutlined />,
             label: "Đăng xuất",
-            onClick: () => {
-                message.info("Đã đăng xuất tài khoản thành công!");
-                navigate(`/${config.routes.LOGIN}`);
+            onClick: async () => {
+                try {
+                    await axiosClient.post(`${URL}/auth/logout`);
+                } catch (err) {
+                    console.error("Logout API error:", err);
+                } finally {
+                    localStorage.removeItem("accessToken");
+                    localStorage.removeItem("user");
+                    setUser(null);
+                    window.dispatchEvent(new Event("auth-change"));
+                    message.success("Đã đăng xuất tài khoản thành công!");
+                    navigate(`/${config.routes.LOGIN}`);
+                }
             },
         },
     ];
@@ -197,16 +268,32 @@ function AppHeader() {
                     {/* Right Header Actions */}
                     <div className="sea-header-actions">
                         <div className="sea-account-links">
-                            <span className="sea-account-link" onClick={() => navigate(`/${config.routes.RESGISTER}`)}>
-                                Đăng ký
-                            </span>
-                            <span className="sea-account-divider">|</span>
-                            <Dropdown menu={{ items: userMenuItems }} trigger={["hover"]} placement="bottomRight">
-                                <span className="sea-user-badge" onClick={() => navigate(`/${config.routes.LOGIN}`)}>
-                                    <Avatar size={22} icon={<UserOutlined />} style={{ backgroundColor: "#22242a" }} />
-                                    <span>Đăng nhập</span>
-                                </span>
-                            </Dropdown>
+                            {user ? (
+                                <Dropdown menu={{ items: userMenuItems }} trigger={["hover"]} placement="bottomRight">
+                                    <span className="sea-user-badge" style={{ cursor: "pointer" }}>
+                                        <Avatar
+                                            size={24}
+                                            src={user.image}
+                                            icon={!user.image && <UserOutlined />}
+                                            style={{ backgroundColor: "#22242a" }}
+                                        />
+                                        <span style={{ fontWeight: 500 }}>
+                                            {user.fullname || user.email?.split("@")[0]}
+                                        </span>
+                                    </span>
+                                </Dropdown>
+                            ) : (
+                                <>
+                                    <span className="sea-account-link" onClick={() => navigate(`/${config.routes.RESGISTER}`)}>
+                                        Đăng ký
+                                    </span>
+                                    <span className="sea-account-divider">|</span>
+                                    <span className="sea-user-badge" onClick={() => navigate(`/${config.routes.LOGIN}`)}>
+                                        <Avatar size={22} icon={<UserOutlined />} style={{ backgroundColor: "#22242a" }} />
+                                        <span>Đăng nhập</span>
+                                    </span>
+                                </>
+                            )}
                         </div>
 
                         {/* Mini Cart Widget */}

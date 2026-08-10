@@ -1,9 +1,14 @@
 import { Input, type InputProps } from "antd";
 
-type AntInputProps = InputProps;
+type AntInputProps = InputProps & {
+    isPassword?: boolean;
+};
 
-function AntInput(props: AntInputProps) {
-    return <Input {...props} />
+function AntInput({ isPassword, ...props }: AntInputProps) {
+    if (isPassword) {
+        return <Input.Password {...props} />;
+    }
+    return <Input {...props} />;
 }
 
 export default AntInput;

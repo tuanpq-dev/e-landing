@@ -1,6 +1,6 @@
 /* Auth Container & Global Layout */
 .auth-page-container {
-    min-height: 82vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -96,7 +96,7 @@
     margin-bottom: 20px;
 }
 
-.auth-form .ant-form-item-label > label {
+.auth-form .ant-form-item-label>label {
     font-size: 13px;
     font-weight: 600;
     color: #333a44;
@@ -283,11 +283,11 @@
         padding: 28px 20px;
         border-radius: 12px;
     }
-    
+
     .auth-title {
         font-size: 21px;
     }
-    
+
     .social-login-grid {
         flex-direction: column;
     }
