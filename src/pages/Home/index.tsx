@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { RightOutlined, LeftOutlined } from "@ant-design/icons";
 import "./Home.css";
-import { categories, slides } from "./mockHome";
+import { homeCategories as categories, slides } from "./homeData";
 import useCarousel from "../../hooks/useCarousel";
 
 function HeroDots({

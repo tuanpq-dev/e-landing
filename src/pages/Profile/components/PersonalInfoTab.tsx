@@ -11,7 +11,7 @@ interface PersonalInfoTabProps {
     saving: boolean;
 }
 
-export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
+export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = React.memo(({
     form,
     profileData,
     onSaveProfile,
@@ -89,4 +89,4 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
             </Form>
         </div>
     );
-};
+});

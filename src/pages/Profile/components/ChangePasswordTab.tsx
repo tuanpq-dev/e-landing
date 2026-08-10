@@ -9,7 +9,7 @@ interface ChangePasswordTabProps {
     saving: boolean;
 }
 
-export const ChangePasswordTab: React.FC<ChangePasswordTabProps> = ({
+export const ChangePasswordTab: React.FC<ChangePasswordTabProps> = React.memo(({
     form,
     onChangePassword,
     saving,
@@ -87,4 +87,4 @@ export const ChangePasswordTab: React.FC<ChangePasswordTabProps> = ({
             </Form>
         </div>
     );
-};
+});
