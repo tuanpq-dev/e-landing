@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { slides } from "../pages/Home/mockHome";
+import { slides } from "../pages/Home/homeData";
 
 const loop = [slides[slides.length - 1], ...slides, slides[0]];
 const LOOP_LEN = loop.length;

@@ -34,7 +34,7 @@ export const slides = [
     },
 ];
 
-export const categories = [
+export const homeCategories = [
     { id: "t-shirt", label: "Áo Thun", img: "/assets/banner-1.png", href: "/product" },
     { id: "jeans", label: "Quần Jeans", img: "/assets/banner-3.png", href: "/product" },
     { id: "underware", label: "Đồ Lót", img: "/assets/banner-2.png", href: "/product" },

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Breadcrumb, Form, message } from "antd";
 import { useNavigate } from "react-router";
 import config from "../../config/config";
@@ -19,6 +19,10 @@ const emptyUserData: UserProfileData = {
     phone: "",
     gender: "male",
     avatar: "",
+};
+
+const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
 };
 
 function Profile() {
@@ -86,12 +90,8 @@ function Profile() {
         fetchUserProfile();
     }, [infoForm]);
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
-    };
-
     // Save Personal Profile Info (PATCH /auth/:id)
-    const handleSaveProfile = async (values: Partial<UserProfileData>) => {
+    const handleSaveProfile = useCallback(async (values: Partial<UserProfileData>) => {
         const targetId = userId || JSON.parse(localStorage.getItem("user") || "{}").id;
         setSaving(true);
         try {
@@ -119,10 +119,10 @@ function Profile() {
         } finally {
             setSaving(false);
         }
-    };
+    }, [userId]);
 
     // Save Change Password (PATCH /auth/password/:id)
-    const handleChangePassword = async (values: any) => {
+    const handleChangePassword = useCallback(async (values: any) => {
         const targetId = userId || JSON.parse(localStorage.getItem("user") || "{}").id;
 
         if (!targetId) {
@@ -144,10 +144,10 @@ function Profile() {
         } finally {
             setSaving(false);
         }
-    };
+    }, [userId, passwordForm]);
 
     // Open Modal for Add/Edit Address
-    const handleOpenAddressModal = (item?: AddressItem) => {
+    const handleOpenAddressModal = useCallback((item?: AddressItem) => {
         if (item) {
             setEditingAddress(item);
             addressForm.setFieldsValue(item);
@@ -156,10 +156,14 @@ function Profile() {
             addressForm.resetFields();
         }
         setAddressModalVisible(true);
-    };
+    }, [addressForm]);
+
+    const handleCloseAddressModal = useCallback(() => {
+        setAddressModalVisible(false);
+    }, []);
 
     // Save Address
-    const handleSaveAddress = async () => {
+    const handleSaveAddress = useCallback(async () => {
         try {
             const values = await addressForm.validateFields();
             if (editingAddress) {
@@ -168,36 +172,38 @@ function Profile() {
                 );
                 message.success("Cập nhật địa chỉ thành công!");
             } else {
-                const newAddr: AddressItem = {
-                    id: Date.now(),
-                    ...values,
-                    isDefault: addresses.length === 0,
-                };
-                setAddresses((prev) => [...prev, newAddr]);
+                setAddresses((prev) => [
+                    ...prev,
+                    {
+                        id: Date.now(),
+                        ...values,
+                        isDefault: prev.length === 0,
+                    },
+                ]);
                 message.success("Thêm địa chỉ mới thành công!");
             }
             setAddressModalVisible(false);
         } catch {
             // Validation failed
         }
-    };
+    }, [addressForm, editingAddress]);
 
     // Set Default Address
-    const handleSetDefaultAddress = (id: number) => {
+    const handleSetDefaultAddress = useCallback((id: number) => {
         setAddresses((prev) =>
             prev.map((addr) => ({ ...addr, isDefault: addr.id === id }))
         );
         message.success("Đã đặt làm địa chỉ giao hàng mặc định");
-    };
+    }, []);
 
     // Delete Address
-    const handleDeleteAddress = (id: number) => {
+    const handleDeleteAddress = useCallback((id: number) => {
         setAddresses((prev) => prev.filter((addr) => addr.id !== id));
         message.success("Đã xóa địa chỉ thành công");
-    };
+    }, []);
 
     // Logout (POST /auth/logout)
-    const handleLogout = async () => {
+    const handleLogout = useCallback(async () => {
         try {
             await axiosClient.post(`${URL}/auth/logout`);
         } catch (err) {
@@ -209,7 +215,7 @@ function Profile() {
             message.info("Đã đăng xuất khỏi tài khoản");
             navigate(`/${config.routes.LOGIN}`);
         }
-    };
+    }, [navigate]);
 
     return (
         <div className="profile-page-container">
@@ -254,7 +260,7 @@ function Profile() {
                             addressModalVisible={addressModalVisible}
                             editingAddress={editingAddress}
                             onOpenAddressModal={handleOpenAddressModal}
-                            onCloseAddressModal={() => setAddressModalVisible(false)}
+                            onCloseAddressModal={handleCloseAddressModal}
                             onSaveAddress={handleSaveAddress}
                             onSetDefaultAddress={handleSetDefaultAddress}
                             onDeleteAddress={handleDeleteAddress}

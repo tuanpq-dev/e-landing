@@ -29,57 +29,18 @@ interface UserInfo {
 }
 
 interface CategoryItem {
-    id: string;
-    title: string;
-    subcategories?: string[];
+    id: number;
+    name: string;
+    children?: CategoryItem[];
 }
-
-const categoriesData: CategoryItem[] = [
-    {
-        id: "t-shirt",
-        title: "Áo thun",
-        subcategories: ["Áo thun basic", "Áo thun chất", "Áo thun đôi"],
-    },
-    {
-        id: "jeans",
-        title: "Quần Jeans",
-        subcategories: ["Quần Jeans cao cấp", "Quần Jeans ống xuông", "Quần Jeans cạp chun", "Quần Jeans rách gối"],
-    },
-    {
-        id: "underware",
-        title: "Đồ lót",
-        subcategories: ["Boxer", "Sịp tam giác", "Boxer trái tim", "Boxer Spiderman"],
-    },
-    {
-        id: "set",
-        title: "Bộ",
-        subcategories: ["Bộ mùa đông", "Bộ dài tay", "Bộ phá cách"],
-    },
-];
-
-const sampleCartItems = [
-    {
-        id: 1,
-        name: "Sofa Băng Da Cao Cấp Sea Luxe",
-        price: "12.500.000₫",
-        variant: "Màu Nâu Bò / Kích thước 2m",
-        image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=80&q=80",
-    },
-    {
-        id: 2,
-        name: "Bàn Trà Gỗ Gõ Đỏ Hiện Đại",
-        price: "4.800.000₫",
-        variant: "Mặt Gỗ Chân Sắt",
-        image: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=80&q=80",
-    },
-];
 
 function AppHeader() {
     const navigate = useNavigate();
     const location = useLocation();
     const [searchQuery, setSearchQuery] = useState("");
     const [categoryOpen, setCategoryOpen] = useState(false);
-    const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    const [activeCategory, setActiveCategory] = useState<number | null>(null);
+    const [categories, setCategories] = useState<CategoryItem[]>([]);
 
     const [user, setUser] = useState<UserInfo | null>(() => {
         const savedUser = localStorage.getItem("user");
@@ -93,6 +54,23 @@ function AppHeader() {
         return null;
     });
 
+    // Fetch Categories from API
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res: any = await axiosClient.post(`${URL}/category/search`, {});
+                if (res && res.data) {
+                    setCategories(res.data);
+                }
+            } catch (err) {
+                console.error("Fetch header categories error:", err);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    // Fetch User Info & Listen for Auth changes
     useEffect(() => {
         const fetchUserData = async () => {
             const token = localStorage.getItem("accessToken");
@@ -132,6 +110,41 @@ function AppHeader() {
         };
     }, []);
 
+    // Cart State & Sync
+    const [cartItems, setCartItems] = useState<any[]>(() => {
+        const saved = localStorage.getItem("cart");
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch {
+                return [];
+            }
+        }
+        return [];
+    });
+
+    useEffect(() => {
+        const handleCartChange = () => {
+            const saved = localStorage.getItem("cart");
+            if (saved) {
+                try {
+                    setCartItems(JSON.parse(saved));
+                } catch {
+                    setCartItems([]);
+                }
+            } else {
+                setCartItems([]);
+            }
+        };
+
+        window.addEventListener("cart-change", handleCartChange);
+        window.addEventListener("storage", handleCartChange);
+        return () => {
+            window.removeEventListener("cart-change", handleCartChange);
+            window.removeEventListener("storage", handleCartChange);
+        };
+    }, []);
+
     const handleSearch = () => {
         if (searchQuery.trim()) {
             navigate(`/${config.routes.PRODUCT}?search=${encodeURIComponent(searchQuery.trim())}`);
@@ -147,7 +160,6 @@ function AppHeader() {
         const target = path.startsWith("/") ? path : `/${path}`;
         return location.pathname.startsWith(target);
     };
-
 
     // User Profile Dropdown Menu
     const userMenuItems: MenuProps["items"] = [
@@ -194,29 +206,49 @@ function AppHeader() {
     ];
 
     // Mini Cart Popover Content
+    const totalCartCount = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
+    const totalCartPrice = cartItems.reduce((acc, item) => acc + (item.price || 0) * (item.quantity || 1), 0);
+
     const cartPopoverContent = (
         <div style={{ width: 340, padding: 4 }}>
             <div style={{ fontWeight: 600, fontSize: 13, color: "#22242a", marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid #eee" }}>
-                Giỏ hàng của bạn (2 sản phẩm)
+                Giỏ hàng của bạn ({totalCartCount} sản phẩm)
             </div>
-            {sampleCartItems.map((item) => (
-                <div
-                    key={item.id}
-                    onClick={() => navigate(`/${config.routes.CART}`)}
-                    style={{ display: "flex", gap: 10, marginBottom: 10, cursor: "pointer" }}
-                >
-                    <img src={item.image} alt={item.name} style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 4 }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 500, color: "#333", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                            {item.name}
-                        </div>
-                        <div style={{ fontSize: 11, color: "#888" }}>{item.variant}</div>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: "#c89968", marginTop: 2 }}>{item.price}</div>
-                    </div>
+            {cartItems.length === 0 ? (
+                <div style={{ padding: "20px 0", textAlign: "center", color: "#888", fontSize: 13 }}>
+                    Giỏ hàng đang trống
                 </div>
-            ))}
+            ) : (
+                cartItems.slice(0, 4).map((item, idx) => (
+                    <div
+                        key={item.cartItemId || idx}
+                        onClick={() => navigate(`/${config.routes.CART}`)}
+                        style={{ display: "flex", gap: 10, marginBottom: 10, cursor: "pointer" }}
+                    >
+                        <img src={item.image} alt={item.name} style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 4 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 500, color: "#333", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {item.name}
+                            </div>
+                            <div style={{ fontSize: 11, color: "#888" }}>{item.variant} x {item.quantity}</div>
+                            <div style={{ fontSize: 12, fontWeight: 600, color: "#c89968", marginTop: 2 }}>
+                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price * item.quantity)}
+                            </div>
+                        </div>
+                    </div>
+                ))
+            )}
+            {cartItems.length > 4 && (
+                <div style={{ fontSize: 11, color: "#888", textAlign: "center", marginBottom: 8 }}>
+                    Và {cartItems.length - 4} sản phẩm khác...
+                </div>
+            )}
             <div style={{ borderTop: "1px solid #eee", paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 12, color: "#666" }}>Tổng tiền: <strong style={{ color: "#c89968", fontSize: 13 }}>17.300.000₫</strong></span>
+                <span style={{ fontSize: 12, color: "#666" }}>
+                    Tổng tiền: <strong style={{ color: "#c89968", fontSize: 13 }}>
+                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(totalCartPrice)}
+                    </strong>
+                </span>
                 <Button
                     type="primary"
                     size="small"
@@ -302,7 +334,7 @@ function AppHeader() {
                                 <ShoppingCartOutlined className="sea-cart-icon" />
                                 <div className="sea-cart-info">
                                     <span className="sea-cart-label">Giỏ hàng</span>
-                                    <span className="sea-cart-count">2 sản phẩm</span>
+                                    <span className="sea-cart-count">{totalCartCount} sản phẩm</span>
                                 </div>
                             </div>
                         </Popover>
@@ -333,39 +365,47 @@ function AppHeader() {
                         {/* Vertical Dropdown Menu */}
                         {categoryOpen && (
                             <div className="sea-category-menu">
-                                {categoriesData.map((cat) => (
-                                    <div
-                                        key={cat.id}
-                                        className="sea-category-item"
-                                        onMouseEnter={() => setActiveCategory(cat.id)}
-                                        onClick={() => {
-                                            navigate(`/${config.routes.PRODUCT}?category=${cat.id}`);
-                                            setCategoryOpen(false);
-                                        }}
-                                    >
-                                        <span>{cat.title}</span>
-                                        {cat.subcategories && <RightOutlined style={{ fontSize: 10, opacity: 0.6 }} />}
-
-                                        {/* Subcategory Mega Panel */}
-                                        {activeCategory === cat.id && cat.subcategories && (
-                                            <div className="sea-subcategory-panel">
-                                                {cat.subcategories.map((sub, idx) => (
-                                                    <div
-                                                        key={idx}
-                                                        className="sea-subcategory-item"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            navigate(`/${config.routes.PRODUCT}?sub=${encodeURIComponent(sub)}`);
-                                                            setCategoryOpen(false);
-                                                        }}
-                                                    >
-                                                        {sub}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                {categories.length === 0 ? (
+                                    <div style={{ padding: "12px 16px", color: "#888", fontSize: 13 }}>
+                                        Đang tải danh mục...
                                     </div>
-                                ))}
+                                ) : (
+                                    categories.map((cat) => (
+                                        <div
+                                            key={cat.id}
+                                            className="sea-category-item"
+                                            onMouseEnter={() => setActiveCategory(cat.id)}
+                                            onClick={() => {
+                                                navigate(`/${config.routes.PRODUCT}?category=${cat.id}`);
+                                                setCategoryOpen(false);
+                                            }}
+                                        >
+                                            <span>{cat.name}</span>
+                                            {cat.children && cat.children.length > 0 && (
+                                                <RightOutlined style={{ fontSize: 10, opacity: 0.6 }} />
+                                            )}
+
+                                            {/* Subcategory Mega Panel */}
+                                            {activeCategory === cat.id && cat.children && cat.children.length > 0 && (
+                                                <div className="sea-subcategory-panel">
+                                                    {cat.children.map((sub) => (
+                                                        <div
+                                                            key={sub.id}
+                                                            className="sea-subcategory-item"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                navigate(`/${config.routes.PRODUCT}?category=${sub.id}`);
+                                                                setCategoryOpen(false);
+                                                            }}
+                                                        >
+                                                            {sub.name}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         )}
                     </div>

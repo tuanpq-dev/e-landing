@@ -17,7 +17,7 @@ interface AddressBookTabProps {
     onDeleteAddress: (id: number) => void;
 }
 
-export const AddressBookTab: React.FC<AddressBookTabProps> = ({
+export const AddressBookTab: React.FC<AddressBookTabProps> = React.memo(({
     addresses,
     addressForm,
     addressModalVisible,
@@ -152,4 +152,4 @@ export const AddressBookTab: React.FC<AddressBookTabProps> = ({
             </Modal>
         </div>
     );
-};
+});

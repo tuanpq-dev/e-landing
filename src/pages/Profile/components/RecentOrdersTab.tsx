@@ -11,12 +11,20 @@ interface RecentOrdersTabProps {
     formatCurrency: (amount: number) => string;
 }
 
-export const RecentOrdersTab: React.FC<RecentOrdersTabProps> = ({
+export const RecentOrdersTab: React.FC<RecentOrdersTabProps> = React.memo(({
     orders,
     totalOrders,
     totalExpend,
     formatCurrency,
 }) => {
+    const processingCount = React.useMemo(() => {
+        return orders.filter((o) => o.status === "PROCESSING" || o.status === "PENDING").length;
+    }, [orders]);
+
+    const completedCount = React.useMemo(() => {
+        return orders.filter((o) => o.status === "COMPLETED").length;
+    }, [orders]);
+
     return (
         <div>
             <div className="tab-header">
@@ -32,13 +40,13 @@ export const RecentOrdersTab: React.FC<RecentOrdersTabProps> = ({
                 </div>
                 <div className="order-stat-card">
                     <div className="stat-number" style={{ color: "#1677ff" }}>
-                        {orders.filter((o) => o.status === "PROCESSING" || o.status === "PENDING").length}
+                        {processingCount}
                     </div>
                     <div className="stat-label">Đang xử lý</div>
                 </div>
                 <div className="order-stat-card">
                     <div className="stat-number" style={{ color: "#52c41a" }}>
-                        {orders.filter((o) => o.status === "COMPLETED").length}
+                        {completedCount}
                     </div>
                     <div className="stat-label">Đã hoàn thành</div>
                 </div>
@@ -137,4 +145,4 @@ export const RecentOrdersTab: React.FC<RecentOrdersTabProps> = ({
             </div>
         </div>
     );
-};
+});

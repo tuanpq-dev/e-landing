@@ -9,6 +9,7 @@ const ProductDetail = React.lazy(() => import("../pages/Product/detail"));
 const Login = React.lazy(() => import("../pages/Login"));
 const Register = React.lazy(() => import("../pages/Register"));
 const Cart = React.lazy(() => import("../pages/Cart"));
+const Checkout = React.lazy(() => import("../pages/Checkout"));
 const Profile = React.lazy(() => import("../pages/Profile"));
 const Order = React.lazy(() => import("../pages/Order"));
 const Wishlist = React.lazy(() => import("../pages/Wishlist"));
@@ -33,6 +34,10 @@ export const routeConfig = [
     {
         path: config.routes.CART,
         element: <Cart />,
+    },
+    {
+        path: config.routes.CHECKOUT,
+        element: <Checkout />,
     },
     {
         path: config.routes.PROFILE,

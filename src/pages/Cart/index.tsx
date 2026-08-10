@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Breadcrumb, Button, Checkbox, Input, Popconfirm, message } from "antd";
 import {
     DeleteOutlined,
@@ -15,7 +15,9 @@ import config from "../../config/config";
 import "./Cart.css";
 
 export interface CartItem {
+    cartItemId?: string;
     id: number;
+    variantId?: number;
     name: string;
     variant: string;
     price: number;
@@ -23,10 +25,12 @@ export interface CartItem {
     quantity: number;
     image: string;
     selected: boolean;
+    stock?: number;
 }
 
 const initialCartItems: CartItem[] = [
     {
+        cartItemId: "item_101",
         id: 101,
         name: "Áo Polo Nam Premium Cotton Cao Cấp",
         variant: "Màu Trắng / Size L",
@@ -35,8 +39,10 @@ const initialCartItems: CartItem[] = [
         quantity: 2,
         image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=200&q=80",
         selected: true,
+        stock: 20,
     },
     {
+        cartItemId: "item_102",
         id: 102,
         name: "Quần Jeans Slim-Fit Co Giãn Thời Trang",
         variant: "Màu Xanh Đen / Size 31",
@@ -45,16 +51,7 @@ const initialCartItems: CartItem[] = [
         quantity: 1,
         image: "https://images.unsplash.com/photo-1542272604-780c36856d60?auto=format&fit=crop&w=200&q=80",
         selected: true,
-    },
-    {
-        id: 103,
-        name: "Áo Khoác Blazer Nam Form Rộng Hàn Quốc",
-        variant: "Màu Be / Size XL",
-        price: 890000,
-        originalPrice: 1100000,
-        quantity: 1,
-        image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=200&q=80",
-        selected: true,
+        stock: 15,
     },
 ];
 
@@ -63,9 +60,47 @@ const DEFAULT_SHIPPING_FEE = 30000;
 
 function Cart() {
     const navigate = useNavigate();
-    const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+    const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+        const saved = localStorage.getItem("cart");
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch {
+                return initialCartItems;
+            }
+        }
+        return initialCartItems;
+    });
+
     const [promoInput, setPromoInput] = useState("");
     const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountPercent?: number; freeShip?: boolean } | null>(null);
+
+    // Sync with localStorage on cart-change event
+    useEffect(() => {
+        const syncCart = () => {
+            const saved = localStorage.getItem("cart");
+            if (saved) {
+                try {
+                    setCartItems(JSON.parse(saved));
+                } catch {
+                    // Ignore
+                }
+            } else {
+                setCartItems([]);
+            }
+        };
+
+        window.addEventListener("cart-change", syncCart);
+        return () => {
+            window.removeEventListener("cart-change", syncCart);
+        };
+    }, []);
+
+    const updateAndSaveCart = (newItems: CartItem[]) => {
+        setCartItems(newItems);
+        localStorage.setItem("cart", JSON.stringify(newItems));
+        window.dispatchEvent(new Event("cart-change"));
+    };
 
     // Format currency VND
     const formatCurrency = (amount: number) => {
@@ -73,41 +108,64 @@ function Cart() {
     };
 
     // Toggle single item selection
-    const handleToggleSelect = (id: number) => {
-        setCartItems((prev) =>
-            prev.map((item) => (item.id === id ? { ...item, selected: !item.selected } : item))
+    const handleToggleSelect = (key: string | number) => {
+        const next = cartItems.map((item) =>
+            (item.cartItemId === key || item.id === key) ? { ...item, selected: !item.selected } : item
         );
+        updateAndSaveCart(next);
     };
 
     // Toggle select all
     const allSelected = cartItems.length > 0 && cartItems.every((item) => item.selected);
     const handleToggleSelectAll = () => {
         const nextState = !allSelected;
-        setCartItems((prev) => prev.map((item) => ({ ...item, selected: nextState })));
+        const next = cartItems.map((item) => ({ ...item, selected: nextState }));
+        updateAndSaveCart(next);
     };
 
     // Change item quantity
-    const handleUpdateQuantity = (id: number, delta: number) => {
-        setCartItems((prev) =>
-            prev.map((item) => {
-                if (item.id === id) {
-                    const newQty = item.quantity + delta;
-                    return newQty >= 1 && newQty <= 99 ? { ...item, quantity: newQty } : item;
-                }
-                return item;
-            })
-        );
+    const handleUpdateQuantity = (itemTarget: CartItem, delta: number) => {
+        const maxStock = itemTarget.stock !== undefined ? itemTarget.stock : 99;
+        const newQty = itemTarget.quantity + delta;
+
+        if (newQty > maxStock) {
+            message.warning(`Sản phẩm này chỉ còn ${maxStock} trong kho!`);
+            return;
+        }
+
+        if (newQty < 1) return;
+
+        const next = cartItems.map((item) => {
+            const isMatch = itemTarget.cartItemId
+                ? item.cartItemId === itemTarget.cartItemId
+                : item.id === itemTarget.id && item.variant === itemTarget.variant;
+
+            if (isMatch) {
+                return { ...item, quantity: newQty };
+            }
+            return item;
+        });
+
+        updateAndSaveCart(next);
     };
 
     // Remove single item
-    const handleRemoveItem = (id: number) => {
-        setCartItems((prev) => prev.filter((item) => item.id !== id));
+    const handleRemoveItem = (itemTarget: CartItem) => {
+        const next = cartItems.filter((item) => {
+            if (itemTarget.cartItemId) {
+                return item.cartItemId !== itemTarget.cartItemId;
+            }
+            return !(item.id === itemTarget.id && item.variant === itemTarget.variant);
+        });
+
+        updateAndSaveCart(next);
         message.success("Đã xóa sản phẩm khỏi giỏ hàng");
     };
 
     // Clear selected items
     const handleClearSelected = () => {
-        setCartItems((prev) => prev.filter((item) => !item.selected));
+        const next = cartItems.filter((item) => !item.selected);
+        updateAndSaveCart(next);
         message.success("Đã xóa các sản phẩm đã chọn");
     };
 
@@ -250,85 +308,93 @@ function Cart() {
                     </div>
 
                     {/* Cart Items Loop */}
-                    {cartItems.map((item) => (
-                        <div className="cart-item-row" key={item.id}>
-                            {/* Checkbox */}
-                            <Checkbox
-                                checked={item.selected}
-                                onChange={() => handleToggleSelect(item.id)}
-                            />
-
-                            {/* Item Info */}
-                            <div className="cart-item-info">
-                                <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="cart-item-img"
-                                    onClick={() => navigate(`/${config.routes.PRODUCT}`)}
+                    {cartItems.map((item, idx) => {
+                        const itemKey = item.cartItemId || `${item.id}_${idx}`;
+                        return (
+                            <div className="cart-item-row" key={itemKey}>
+                                {/* Checkbox */}
+                                <Checkbox
+                                    checked={item.selected}
+                                    onChange={() => handleToggleSelect(item.cartItemId || item.id)}
                                 />
-                                <div className="cart-item-details">
-                                    <span
-                                        className="cart-item-name"
-                                        onClick={() => navigate(`/${config.routes.PRODUCT}`)}
+
+                                {/* Item Info */}
+                                <div className="cart-item-info">
+                                    <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="cart-item-img"
+                                        onClick={() => navigate(`/${config.routes.PRODUCT_DETAIL(String(item.id))}`)}
+                                    />
+                                    <div className="cart-item-details">
+                                        <span
+                                            className="cart-item-name"
+                                            onClick={() => navigate(`/${config.routes.PRODUCT_DETAIL(String(item.id))}`)}
+                                        >
+                                            {item.name}
+                                        </span>
+                                        <span className="cart-item-variant">{item.variant}</span>
+                                        {item.stock !== undefined && (
+                                            <span style={{ fontSize: 11, color: item.stock <= 5 ? "#ff4d4f" : "#888" }}>
+                                                {item.stock <= 5 ? `Kho còn: ${item.stock}` : `Tồn kho: ${item.stock}`}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Unit Price */}
+                                <div className="cart-item-price">
+                                    <span className="price-current">{formatCurrency(item.price)}</span>
+                                    {item.originalPrice && item.originalPrice > item.price && (
+                                        <span className="price-original">{formatCurrency(item.originalPrice)}</span>
+                                    )}
+                                </div>
+
+                                {/* Quantity Control */}
+                                <div className="quantity-control">
+                                    <button
+                                        className="qty-btn"
+                                        onClick={() => handleUpdateQuantity(item, -1)}
+                                        disabled={item.quantity <= 1}
                                     >
-                                        {item.name}
-                                    </span>
-                                    <span className="cart-item-variant">{item.variant}</span>
+                                        -
+                                    </button>
+                                    <input
+                                        type="text"
+                                        className="qty-input"
+                                        value={item.quantity}
+                                        readOnly
+                                    />
+                                    <button
+                                        className="qty-btn"
+                                        onClick={() => handleUpdateQuantity(item, 1)}
+                                        disabled={item.stock !== undefined && item.quantity >= item.stock}
+                                    >
+                                        +
+                                    </button>
                                 </div>
-                            </div>
 
-                            {/* Unit Price */}
-                            <div className="cart-item-price">
-                                <span className="price-current">{formatCurrency(item.price)}</span>
-                                {item.originalPrice && (
-                                    <span className="price-original">{formatCurrency(item.originalPrice)}</span>
-                                )}
-                            </div>
-
-                            {/* Quantity Control */}
-                            <div className="quantity-control">
-                                <button
-                                    className="qty-btn"
-                                    onClick={() => handleUpdateQuantity(item.id, -1)}
-                                    disabled={item.quantity <= 1}
-                                >
-                                    -
-                                </button>
-                                <input
-                                    type="text"
-                                    className="qty-input"
-                                    value={item.quantity}
-                                    readOnly
-                                />
-                                <button
-                                    className="qty-btn"
-                                    onClick={() => handleUpdateQuantity(item.id, 1)}
-                                    disabled={item.quantity >= 99}
-                                >
-                                    +
-                                </button>
-                            </div>
-
-                            {/* Total Item Price */}
-                            <div className="price-total">
-                                {formatCurrency(item.price * item.quantity)}
-                            </div>
-
-                            {/* Delete Action */}
-                            <Popconfirm
-                                title="Xóa sản phẩm này?"
-                                description="Bạn có chắc chắn muốn bỏ sản phẩm khỏi giỏ hàng?"
-                                onConfirm={() => handleRemoveItem(item.id)}
-                                okText="Xóa"
-                                cancelText="Hủy"
-                                okButtonProps={{ danger: true }}
-                            >
-                                <div className="cart-item-delete">
-                                    <DeleteOutlined />
+                                {/* Total Item Price */}
+                                <div className="price-total">
+                                    {formatCurrency(item.price * item.quantity)}
                                 </div>
-                            </Popconfirm>
-                        </div>
-                    ))}
+
+                                {/* Delete Action */}
+                                <Popconfirm
+                                    title="Xóa sản phẩm này?"
+                                    description="Bạn có chắc chắn muốn bỏ sản phẩm khỏi giỏ hàng?"
+                                    onConfirm={() => handleRemoveItem(item)}
+                                    okText="Xóa"
+                                    cancelText="Hủy"
+                                    okButtonProps={{ danger: true }}
+                                >
+                                    <div className="cart-item-delete">
+                                        <DeleteOutlined />
+                                    </div>
+                                </Popconfirm>
+                            </div>
+                        );
+                    })}
 
                     {/* Bottom Actions Bar */}
                     <div className="cart-actions-bar">

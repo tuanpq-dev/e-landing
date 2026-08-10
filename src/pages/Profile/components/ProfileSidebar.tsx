@@ -19,7 +19,7 @@ interface ProfileSidebarProps {
     onLogout: () => void;
 }
 
-export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
+export const ProfileSidebar: React.FC<ProfileSidebarProps> = React.memo(({
     profileData,
     activeTab,
     setActiveTab,
@@ -95,4 +95,4 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
             </div>
         </div>
     );
-};
+});
