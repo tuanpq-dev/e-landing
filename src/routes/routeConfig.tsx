@@ -6,6 +6,12 @@ const Product = React.lazy(() => import("../pages/Product"));
 const About = React.lazy(() => import("../pages/About"));
 const Contact = React.lazy(() => import("../pages/Contact"));
 const ProductDetail = React.lazy(() => import("../pages/Product/detail"));
+const Login = React.lazy(() => import("../pages/Login"));
+const Register = React.lazy(() => import("../pages/Register"));
+const Cart = React.lazy(() => import("../pages/Cart"));
+const Profile = React.lazy(() => import("../pages/Profile"));
+const Order = React.lazy(() => import("../pages/Order"));
+const Wishlist = React.lazy(() => import("../pages/Wishlist"));
 
 export const routeConfig = [
     {
@@ -15,6 +21,30 @@ export const routeConfig = [
     {
         path: config.routes.HOME,
         element: <Home />,
+    },
+    {
+        path: config.routes.LOGIN,
+        element: <Login />,
+    },
+    {
+        path: config.routes.REGISTER,
+        element: <Register />,
+    },
+    {
+        path: config.routes.CART,
+        element: <Cart />,
+    },
+    {
+        path: config.routes.PROFILE,
+        element: <Profile />,
+    },
+    {
+        path: config.routes.ORDER,
+        element: <Order />,
+    },
+    {
+        path: config.routes.WISHLIST,
+        element: <Wishlist />,
     },
     {
         path: config.routes.PRODUCT,
