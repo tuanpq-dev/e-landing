@@ -8,9 +8,6 @@ const routes = {
 
     HOME: 'home',
 
-    NEWS: 'news',
-    NEWS_DETAIL: (id: number) => `news/${id}`,
-
     ORDER: 'order',
 
     RESGISTER: 'register',
@@ -23,7 +20,7 @@ const routes = {
 
     PROFILE: 'profile',
     PRODUCT: 'product',
-    PRODUCT_DETAIL: (id: number) => `product/${id}`,
+    PRODUCT_DETAIL: (id: string) => `/product/${id}`,
     POLICY: 'policy',
 
     WISHLIST: 'wishlist',
