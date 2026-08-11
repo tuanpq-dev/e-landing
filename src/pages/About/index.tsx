@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import {
     HeartOutlined,
     StarOutlined,
@@ -9,36 +8,7 @@ import {
 import "./About.css";
 import heroBg from "../../assets/about/hero.png";
 import storyImg from "../../assets/about/story.png";
-
-/* ── Animated counter ── */
-function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
-    const [count, setCount] = useState(0);
-    const ref = useRef<HTMLDivElement>(null);
-    const started = useRef(false);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting && !started.current) {
-                    started.current = true;
-                    const duration = 1400;
-                    const step = Math.ceil(target / (duration / 16));
-                    let current = 0;
-                    const timer = setInterval(() => {
-                        current = Math.min(current + step, target);
-                        setCount(current);
-                        if (current >= target) clearInterval(timer);
-                    }, 16);
-                }
-            },
-            { threshold: 0.5 }
-        );
-        if (ref.current) observer.observe(ref.current);
-        return () => observer.disconnect();
-    }, [target]);
-
-    return <div ref={ref} className="about-stat-number">{count}{suffix}</div>;
-}
+import Counter from "../../utils/counter";
 
 /* ── Team data ── */
 const team = [
