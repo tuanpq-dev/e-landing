@@ -1,9 +1,9 @@
 export const priceRanges = [
-    { id: "p1", label: "Dưới 200.000đ" },
-    { id: "p2", label: "200.000đ – 500.000đ" },
-    { id: "p3", label: "500.000đ – 1.000.000đ" },
-    { id: "p4", label: "1.000.000đ – 2.000.000đ" },
-    { id: "p5", label: "Trên 2.000.000đ" },
+    { id: "p1", label: "Dưới $20" },
+    { id: "p2", label: "$20 – $50" },
+    { id: "p3", label: "$50 – $100" },
+    { id: "p4", label: "$100 – $200" },
+    { id: "p5", label: "Trên $200" },
 ];
 
 export const colors = [

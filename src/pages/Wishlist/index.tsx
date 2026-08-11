@@ -31,8 +31,8 @@ const initialWishlistItems: WishlistItem[] = [
         id: 201,
         name: "Áo Polo Nam Premium Cotton Cao Cấp",
         category: "Áo nam",
-        price: 350000,
-        originalPrice: 450000,
+        price: 35,
+        originalPrice: 45,
         discountPercent: 22,
         rating: 4.9,
         reviewsCount: 128,
@@ -43,8 +43,8 @@ const initialWishlistItems: WishlistItem[] = [
         id: 202,
         name: "Quần Jeans Slim-Fit Co Giãn Thời Trang",
         category: "Quần Jeans",
-        price: 580000,
-        originalPrice: 720000,
+        price: 58,
+        originalPrice: 72,
         discountPercent: 19,
         rating: 4.8,
         reviewsCount: 96,
@@ -55,8 +55,8 @@ const initialWishlistItems: WishlistItem[] = [
         id: 203,
         name: "Áo Khoác Blazer Nam Form Rộng Hàn Quốc",
         category: "Áo khoác",
-        price: 890000,
-        originalPrice: 1100000,
+        price: 89,
+        originalPrice: 110,
         discountPercent: 19,
         rating: 5.0,
         reviewsCount: 64,
@@ -67,8 +67,8 @@ const initialWishlistItems: WishlistItem[] = [
         id: 204,
         name: "Áo Thun Basic Oversize Unisex Premium",
         category: "Áo thun",
-        price: 250000,
-        originalPrice: 320000,
+        price: 25,
+        originalPrice: 32,
         discountPercent: 21,
         rating: 4.7,
         reviewsCount: 215,
@@ -82,7 +82,7 @@ function Wishlist() {
     const [wishlist, setWishlist] = useState<WishlistItem[]>(initialWishlistItems);
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
+        return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
     };
 
     // Remove single item

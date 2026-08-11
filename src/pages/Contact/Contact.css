@@ -2,6 +2,7 @@
     max-width: 1200px;
     margin: 40px auto;
     padding: 0 16px;
+    min-height: 100vh;
 }
 
 .contact-body {

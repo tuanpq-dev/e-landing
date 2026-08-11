@@ -22,7 +22,7 @@ const emptyUserData: UserProfileData = {
 };
 
 const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
 };
 
 function Profile() {

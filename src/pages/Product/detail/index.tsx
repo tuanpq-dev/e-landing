@@ -288,8 +288,8 @@ function ProductDetail() {
 
                     {/* Price */}
                     <div className="detail-price-row">
-                        <span className="detail-price">{priceNum.toLocaleString('vi-VN')}đ</span>
-                        <span className="detail-original-price">{originalPrice.toLocaleString('vi-VN')}đ</span>
+                        <span className="detail-price">{new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(priceNum)}</span>
+                        <span className="detail-original-price">{new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(originalPrice)}</span>
                         <span className="detail-discount-tag">-{discount}%</span>
                     </div>
 
