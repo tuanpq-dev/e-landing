@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button, message } from "antd";
 import { MailOutlined, LockOutlined, SafetyOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
@@ -17,6 +17,29 @@ interface LoginFormValues {
 const Login: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        const userStr = params.get("user");
+
+        if (token && userStr) {
+            try {
+                const user = JSON.parse(decodeURIComponent(userStr));
+                localStorage.setItem("accessToken", token);
+                localStorage.setItem("user", JSON.stringify(user));
+                window.dispatchEvent(new Event("auth-change"));
+                message.success({
+                    content: `Chào mừng bạn trở lại, ${user.fullname || "khách hàng"}!`,
+                    icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
+                    duration: 3,
+                });
+                navigate("/");
+            } catch {
+                // Ignore
+            }
+        }
+    }, [navigate]);
 
     const onFinish = async (values: LoginFormValues) => {
         setLoading(true);
@@ -136,7 +159,9 @@ const Login: React.FC = () => {
                     <button
                         type="button"
                         className="social-btn"
-                        onClick={() => message.info("Tính năng Đăng nhập với Google đang được phát triển")}
+                        onClick={() => {
+                            window.location.href = `${URL}/auth/google`;
+                        }}
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24">
                             <path
