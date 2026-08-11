@@ -3,7 +3,7 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 30px 20px 60px 20px;
-    min-height: 78vh;
+    min-height: 100vh;
 }
 
 .profile-layout {
@@ -160,7 +160,7 @@
 }
 
 /* Form Styles */
-.profile-form .ant-form-item-label > label {
+.profile-form .ant-form-item-label>label {
     font-size: 13px;
     font-weight: 600;
     color: #333a44;
@@ -307,11 +307,11 @@
     .profile-layout {
         grid-template-columns: 1fr;
     }
-    
+
     .profile-sidebar {
         position: static;
     }
-    
+
     .order-stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }

@@ -5,6 +5,7 @@
     margin: 32px auto;
     padding: 0 16px;
     align-items: flex-start;
+    min-height: 100vh;
 }
 
 .product-sidebar {
@@ -416,7 +417,7 @@
 }
 
 .product-card:hover .product-card-review-count {
-    color: rgba(255,255,255,0.6);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 /* Price */
@@ -445,7 +446,7 @@
 }
 
 .product-card:hover .product-card-original-price {
-    color: rgba(255,255,255,0.45);
+    color: rgba(255, 255, 255, 0.45);
 }
 
 /* Color tags */
@@ -465,8 +466,8 @@
 }
 
 .product-card:hover .product-card-color-tag {
-    background: rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.85);
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 /* Size tags */
@@ -487,8 +488,8 @@
 }
 
 .product-card:hover .product-card-size-tag {
-    border-color: rgba(255,255,255,0.4);
-    color: rgba(255,255,255,0.85);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 /* Stock */

@@ -232,7 +232,7 @@ function AppHeader() {
                             </div>
                             <div style={{ fontSize: 11, color: "#888" }}>{item.variant} x {item.quantity}</div>
                             <div style={{ fontSize: 12, fontWeight: 600, color: "#c89968", marginTop: 2 }}>
-                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.price * item.quantity)}
+                                {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(item.price * item.quantity)}
                             </div>
                         </div>
                     </div>
@@ -246,7 +246,7 @@ function AppHeader() {
             <div style={{ borderTop: "1px solid #eee", paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontSize: 12, color: "#666" }}>
                     Tổng tiền: <strong style={{ color: "#c89968", fontSize: 13 }}>
-                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(totalCartPrice)}
+                        {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(totalCartPrice)}
                     </strong>
                 </span>
                 <Button

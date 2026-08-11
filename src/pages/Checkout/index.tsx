@@ -62,14 +62,14 @@ function Checkout() {
         }
     }, [form]);
 
-    // Format currency VND
+    // Format currency USD
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
+        return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
     };
 
     // Calculate Costs
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const shippingFee = shippingMethod === "EXPRESS" ? 50000 : (subtotal >= 1500000 ? 0 : 30000);
+    const shippingFee = shippingMethod === "EXPRESS" ? 10 : (subtotal >= 50 ? 0 : 5);
     const grandTotal = subtotal + shippingFee;
 
     // Handle Submit Order
@@ -258,7 +258,7 @@ function Checkout() {
                                     <div className="option-title">
                                         <span>Giao Hàng Tiêu Chuẩn</span>
                                         <span className="option-price">
-                                            {subtotal >= 1500000 ? "MIỄN PHÍ" : "30.000đ"}
+                                            {subtotal >= 50 ? "MIỄN PHÍ" : "$5.00"}
                                         </span>
                                     </div>
                                     <div className="option-desc">Thời gian nhận hàng dự kiến 2 - 4 ngày làm việc.</div>
@@ -273,7 +273,7 @@ function Checkout() {
                                 <div className="option-info">
                                     <div className="option-title">
                                         <span>Giao Hàng Hỏa Tốc (24h)</span>
-                                        <span className="option-price">50.000đ</span>
+                                        <span className="option-price">$10.00</span>
                                     </div>
                                     <div className="option-desc">Giao siêu tốc trong 24 giờ cho khu vực nội thành.</div>
                                 </div>

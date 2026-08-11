@@ -61,7 +61,7 @@ export function parseProductImage(imageStr?: string, idSeed: number | string = 1
 function FilterBlock({
     title,
     children,
-    defaultOpen = true,
+    defaultOpen = false,
 }: {
     title: string;
     children: React.ReactNode;
@@ -228,7 +228,7 @@ function ProductSidebar({
 
 function formatPrice(n: number | string) {
     const num = typeof n === "string" ? parseFloat(n) || 0 : n;
-    return num.toLocaleString('vi-VN') + 'đ';
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(num);
 }
 
 function ProductCard({ product, onDetail }: { product: ApiProduct; onDetail: (id: number) => void }) {

@@ -86,14 +86,6 @@ function Home() {
                             <div className={slide.overlayClass} />
                             <div className={`hero-copy ${slide.copyAlign}`}>
                                 <div className="hero-label">{slide.label}</div>
-                                <h1 className="hero-title">
-                                    {slide.title.split("\n").map((line, j) => (
-                                        <span key={j}>
-                                            {line}
-                                            <br />
-                                        </span>
-                                    ))}
-                                </h1>
                                 <p className="hero-sub">{slide.sub}</p>
                                 <button
                                     className={`hero-cta${slide.ctaStyle === "dark" ? " dark" : ""}`}

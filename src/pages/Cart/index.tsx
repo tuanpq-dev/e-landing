@@ -34,8 +34,8 @@ const initialCartItems: CartItem[] = [
         id: 101,
         name: "Áo Polo Nam Premium Cotton Cao Cấp",
         variant: "Màu Trắng / Size L",
-        price: 350000,
-        originalPrice: 450000,
+        price: 35,
+        originalPrice: 45,
         quantity: 2,
         image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=200&q=80",
         selected: true,
@@ -46,8 +46,8 @@ const initialCartItems: CartItem[] = [
         id: 102,
         name: "Quần Jeans Slim-Fit Co Giãn Thời Trang",
         variant: "Màu Xanh Đen / Size 31",
-        price: 580000,
-        originalPrice: 720000,
+        price: 58,
+        originalPrice: 72,
         quantity: 1,
         image: "https://images.unsplash.com/photo-1542272604-780c36856d60?auto=format&fit=crop&w=200&q=80",
         selected: true,
@@ -55,8 +55,8 @@ const initialCartItems: CartItem[] = [
     },
 ];
 
-const FREESHIP_THRESHOLD = 1500000; // 1.500.000₫ for free shipping
-const DEFAULT_SHIPPING_FEE = 30000;
+const FREESHIP_THRESHOLD = 50; // $50 for free shipping
+const DEFAULT_SHIPPING_FEE = 5;
 
 function Cart() {
     const navigate = useNavigate();
@@ -102,9 +102,9 @@ function Cart() {
         window.dispatchEvent(new Event("cart-change"));
     };
 
-    // Format currency VND
+    // Format currency USD
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount);
+        return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
     };
 
     // Toggle single item selection
