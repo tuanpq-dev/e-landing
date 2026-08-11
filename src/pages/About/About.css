@@ -189,6 +189,11 @@
     text-align: center;
     padding: 0 24px;
     border-right: 1px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.25s ease;
+}
+
+.about-stat:hover {
+    transform: translateY(-4px);
 }
 
 .about-stat:last-child {
@@ -196,16 +201,18 @@
 }
 
 .about-stat-number {
-    font-size: 44px;
-    font-weight: 700;
+    font-size: 48px;
+    font-weight: 800;
     color: #fff;
-    line-height: 1;
+    line-height: 1.1;
     margin-bottom: 8px;
+    letter-spacing: -0.5px;
 }
 
 .about-stat-label {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
     letter-spacing: 0.5px;
 }
 

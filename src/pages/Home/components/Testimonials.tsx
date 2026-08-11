@@ -1,5 +1,6 @@
 import React from "react";
 import { StarFilled, LikeOutlined, TrophyOutlined, SmileOutlined } from "@ant-design/icons";
+import Counter from "../../../utils/counter";
 
 interface ReviewItem {
     id: string;
@@ -48,22 +49,22 @@ export const Testimonials: React.FC = () => {
                 <div className="home-stats-grid">
                     <div className="home-stat-item">
                         <TrophyOutlined className="home-stat-icon" />
-                        <div className="home-stat-num">10.000+</div>
+                        <Counter target={10000} suffix="+" className="home-stat-num" />
                         <div className="home-stat-label">Khách hàng tin tưởng</div>
                     </div>
                     <div className="home-stat-item">
                         <StarFilled className="home-stat-icon" />
-                        <div className="home-stat-num">4.9 / 5.0</div>
+                        <Counter target={4.9} decimals={1} suffix=" / 5.0" className="home-stat-num" />
                         <div className="home-stat-label">Đánh giá chất lượng</div>
                     </div>
                     <div className="home-stat-item">
                         <LikeOutlined className="home-stat-icon" />
-                        <div className="home-stat-num">99%</div>
+                        <Counter target={99} suffix="%" className="home-stat-num" />
                         <div className="home-stat-label">Hài lòng về dịch vụ</div>
                     </div>
                     <div className="home-stat-item">
                         <SmileOutlined className="home-stat-icon" />
-                        <div className="home-stat-num">24/7</div>
+                        <Counter target={24} suffix="/7" className="home-stat-num" />
                         <div className="home-stat-label">Hỗ trợ tận tâm</div>
                     </div>
                 </div>
