@@ -6,7 +6,7 @@ export const NewsletterVoucher: React.FC = () => {
     const [email, setEmail] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         if (!email || !email.includes("@")) {
             message.error("Vui lòng nhập địa chỉ email hợp lệ!");
