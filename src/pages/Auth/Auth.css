@@ -2,6 +2,7 @@
 .auth-page-container {
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 40px 20px;
@@ -277,6 +278,68 @@
     background-color: #52c41a;
 }
 
+/* Brand Header Layout */
+.auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin-bottom: 24px;
+}
+
+.auth-brand-logo {
+    width: 44px;
+    height: 44px;
+}
+
+.auth-brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-brand-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #22242a;
+    line-height: 1.2;
+}
+
+.auth-brand-subtitle {
+    font-size: 11px;
+    color: #c89968;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Forgot Password Link Wrapper */
+.auth-forgot-link-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 18px;
+    margin-top: -8px;
+}
+
+.auth-submit-item {
+    margin-bottom: 0;
+}
+
+.auth-submit-item-with-top {
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+
+.auth-success-description {
+    color: #666e7a;
+    font-size: 13.5px;
+    margin-bottom: 20px;
+}
+
+.auth-footer-icon {
+    margin-right: 4px;
+    font-size: 11px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .auth-card {
@@ -290,5 +353,21 @@
 
     .social-login-grid {
         flex-direction: column;
+    }
+
+    .otp-digit-input {
+        width: 40px;
+        height: 46px;
+        font-size: 18px;
+    }
+
+    .auth-step-circle {
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+    }
+
+    .auth-step-line {
+        width: 14px;
     }
 }

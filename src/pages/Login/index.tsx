@@ -31,7 +31,7 @@ const Login: React.FC = () => {
                 window.dispatchEvent(new Event("auth-change"));
                 message.success({
                     content: `Chào mừng bạn trở lại, ${user.fullname || "khách hàng"}!`,
-                    icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
+                    icon: <CheckCircleOutlined />,
                     duration: 3,
                 });
                 navigate("/");
@@ -56,7 +56,7 @@ const Login: React.FC = () => {
 
             message.success({
                 content: `Chào mừng bạn trở lại, ${response.user?.fullname || "khách hàng"}!`,
-                icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
+                icon: <CheckCircleOutlined />,
                 duration: 3,
             });
 
@@ -69,22 +69,13 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="auth-page-container" style={{ flexDirection: "column" }}>
+        <div className="auth-page-container">
             {/* Top Brand Logo */}
-            <div
-                onClick={() => navigate("/")}
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    cursor: "pointer",
-                    marginBottom: 24,
-                }}
-            >
-                <img src="/favicon.svg" alt="Essential" style={{ width: 44, height: 44 }} />
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ fontSize: 22, fontWeight: 800, color: "#22242a", lineHeight: 1.2 }}>Essential</span>
-                    <span style={{ fontSize: 11, color: "#c89968", fontWeight: 600, textTransform: "uppercase", letterSpacing: 1 }}>Thời trang cao cấp</span>
+            <div className="auth-brand" onClick={() => navigate("/")}>
+                <img src="/favicon.svg" alt="Essential" className="auth-brand-logo" />
+                <div className="auth-brand-text">
+                    <span className="auth-brand-title">Essential</span>
+                    <span className="auth-brand-subtitle">Thời trang cao cấp</span>
                 </div>
             </div>
 
@@ -135,8 +126,22 @@ const Login: React.FC = () => {
                         ]}
                     />
 
+                    {/* Forgot Password Link via <a> tag */}
+                    <div className="auth-forgot-link-wrapper">
+                        <a
+                            href={`/${config.routes.FORGOT_PASSWORD}`}
+                            className="auth-forgot-link"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate(`/${config.routes.FORGOT_PASSWORD}`);
+                            }}
+                        >
+                            Quên mật khẩu?
+                        </a>
+                    </div>
+
                     {/* Submit Button */}
-                    <Form.Item style={{ marginBottom: 0 }}>
+                    <Form.Item className="auth-submit-item">
                         <Button
                             type="primary"
                             htmlType="submit"
@@ -199,12 +204,16 @@ const Login: React.FC = () => {
                 {/* Switch to Register */}
                 <div className="auth-footer">
                     <span>Bạn chưa có tài khoản?</span>
-                    <span
+                    <a
+                        href={`/${config.routes.REGISTER}`}
                         className="auth-footer-link"
-                        onClick={() => navigate(`/${config.routes.REGISTER}`)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            navigate(`/${config.routes.REGISTER}`);
+                        }}
                     >
                         Đăng ký ngay
-                    </span>
+                    </a>
                 </div>
             </div>
         </div>
