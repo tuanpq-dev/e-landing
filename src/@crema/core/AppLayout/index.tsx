@@ -2,6 +2,7 @@ import { Layout } from "antd";
 import { useLocation } from "react-router";
 import AppHeader from "./AppHeader";
 import AppFooter from "./AppFooter";
+import config from "../../../config/config";
 import "./AppLayout.css";
 
 type AppLayoutProps = React.PropsWithChildren;
@@ -9,12 +10,16 @@ type AppLayoutProps = React.PropsWithChildren;
 function AppLayout({ children }: AppLayoutProps) {
     const location = useLocation();
 
-    // Check if the current path is Login or Register page
+    // Check if the current path is Auth page (Login, Register, Forgot Password, Reset Password)
     const isAuthPage =
-        location.pathname === "/login" ||
-        location.pathname === "/register" ||
-        location.pathname.startsWith("/login") ||
-        location.pathname.startsWith("/register");
+        location.pathname === `/${config.routes.LOGIN}` ||
+        location.pathname === `/${config.routes.REGISTER}` ||
+        location.pathname === `/${config.routes.FORGOT_PASSWORD}` ||
+        location.pathname === `/${config.routes.RESET_PASSWORD}` ||
+        location.pathname.startsWith(`/${config.routes.LOGIN}`) ||
+        location.pathname.startsWith(`/${config.routes.REGISTER}`) ||
+        location.pathname.startsWith(`/${config.routes.FORGOT_PASSWORD}`) ||
+        location.pathname.startsWith(`/${config.routes.RESET_PASSWORD}`);
 
     if (isAuthPage) {
         return (

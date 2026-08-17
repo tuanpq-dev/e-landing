@@ -67,24 +67,64 @@
 }
 
 .filter-category-item {
-    padding: 8px 0;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 8px 10px;
     cursor: pointer;
     font-size: 13px;
-    color: #444;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    transition: color 0.15s;
+    justify-content: flex-start;
+    transition: all 0.15s ease;
+    user-select: none;
+    border-radius: 4px;
 }
 
 .filter-category-item:last-child {
     border-bottom: none;
 }
 
-.filter-category-item:hover,
+.filter-category-item:hover {
+    color: #c89968;
+    background-color: #faf7f3;
+}
+
 .filter-category-item.active {
-    color: #111;
+    color: #c89968;
+    font-weight: 600;
+    background-color: #fcf8f3;
+}
+
+.cat-icon-slot {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 6px;
+    font-size: 9px;
+    color: #777;
+}
+
+.filter-category-item.active .cat-icon-slot {
+    color: #c89968;
+}
+
+.filter-category-parent {
+    color: #333;
+}
+
+.filter-category-child {
+    padding-left: 30px;
+    font-weight: 400;
+    color: #555;
+}
+
+.filter-category-child:hover {
+    color: #c89968;
+}
+
+.filter-category-child.active {
+    color: #c89968;
     font-weight: 600;
 }
 

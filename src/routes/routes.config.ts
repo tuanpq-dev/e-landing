@@ -14,6 +14,8 @@ const routes = {
     REGISTER: 'register',
 
     LOGIN: 'login',
+    FORGOT_PASSWORD: 'forgot-password',
+    RESET_PASSWORD: 'reset-password',
 
     FAQ: 'faq',
 

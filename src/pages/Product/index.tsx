@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { DownOutlined, RightOutlined, StarFilled, LoadingOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import "./Product.css";
 import { colors, priceRanges, sizes } from "./productFilterConfig";
 import config from "../../config/config";
@@ -86,13 +86,32 @@ function ProductSidebar({
     activeCategory,
     onCategoryChange,
 }: {
-    categoriesList: Array<{ id: number | string; label: string }>;
+    categoriesList: CategoryItem[];
     activeCategory: number | string;
     onCategoryChange: (id: number | string) => void;
 }) {
     const [checkedPrices, setCheckedPrices] = useState<string[]>([]);
     const [activeColors, setActiveColors] = useState<string[]>([]);
     const [activeSizes, setActiveSizes] = useState<string[]>([]);
+    const [expandedParents, setExpandedParents] = useState<Record<number | string, boolean>>({});
+
+    const toggleExpand = (catId: number | string, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        setExpandedParents((prev) => ({
+            ...prev,
+            [catId]: prev[catId] === undefined ? true : !prev[catId],
+        }));
+    };
+
+    const handleParentClick = (cat: CategoryItem) => {
+        onCategoryChange(cat.id);
+        if (cat.children && cat.children.length > 0) {
+            setExpandedParents((prev) => ({
+                ...prev,
+                [cat.id]: true,
+            }));
+        }
+    };
 
     const togglePrice = (id: string) =>
         setCheckedPrices((prev) =>
@@ -124,34 +143,65 @@ function ProductSidebar({
 
     return (
         <aside className="product-sidebar">
-            <FilterBlock title="Danh Mục Sản Phẩm">
+            <FilterBlock title="Danh Mục Sản Phẩm" defaultOpen={false}>
                 <ul className="filter-category-list">
                     <li
                         key="all"
                         className={`filter-category-item${activeCategory === "all" ? " active" : ""}`}
                         onClick={() => onCategoryChange("all")}
                     >
-                        <span>
-                            {activeCategory === "all" && (
-                                <RightOutlined style={{ fontSize: 10, marginRight: 6 }} />
-                            )}
-                            Tất cả sản phẩm
+                        <span className="cat-icon-slot">
+                            {activeCategory === "all" && <RightOutlined />}
                         </span>
+                        <span>Tất cả sản phẩm</span>
                     </li>
-                    {categoriesList.map((cat) => (
-                        <li
-                            key={cat.id}
-                            className={`filter-category-item${activeCategory === cat.id ? " active" : ""}`}
-                            onClick={() => onCategoryChange(cat.id)}
-                        >
-                            <span>
-                                {activeCategory === cat.id && (
-                                    <RightOutlined style={{ fontSize: 10, marginRight: 6 }} />
-                                )}
-                                {cat.label}
-                            </span>
-                        </li>
-                    ))}
+                    {categoriesList.map((cat) => {
+                        const hasChildren = Boolean(cat.children && cat.children.length > 0);
+                        const isParentActive = Number(activeCategory) === Number(cat.id);
+                        const isChildActive = hasChildren && cat.children!.some((sub) => Number(activeCategory) === Number(sub.id));
+
+                        const isExpanded = expandedParents[cat.id] !== undefined
+                            ? expandedParents[cat.id]
+                            : (isChildActive || isParentActive);
+
+                        return (
+                            <React.Fragment key={cat.id}>
+                                <li
+                                    className={`filter-category-item filter-category-parent${isParentActive ? " active" : ""}`}
+                                    onClick={() => handleParentClick(cat)}
+                                >
+                                    <span
+                                        className="cat-icon-slot"
+                                        onClick={hasChildren ? (e) => toggleExpand(cat.id, e) : undefined}
+                                    >
+                                        {hasChildren ? (
+                                            <RightOutlined style={{ transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+                                        ) : isParentActive ? (
+                                            <RightOutlined />
+                                        ) : null}
+                                    </span>
+                                    <span>{cat.name}</span>
+                                </li>
+                                {hasChildren &&
+                                    isExpanded &&
+                                    cat.children!.map((sub) => {
+                                        const isSubActive = Number(activeCategory) === Number(sub.id);
+                                        return (
+                                            <li
+                                                key={sub.id}
+                                                className={`filter-category-item filter-category-child${isSubActive ? " active" : ""}`}
+                                                onClick={() => onCategoryChange(sub.id)}
+                                            >
+                                                <span className="cat-icon-slot">
+                                                    {isSubActive && <RightOutlined />}
+                                                </span>
+                                                <span>{sub.name}</span>
+                                            </li>
+                                        );
+                                    })}
+                            </React.Fragment>
+                        );
+                    })}
                 </ul>
             </FilterBlock>
 
@@ -298,10 +348,22 @@ function ProductGrid({ products, onDetail }: { products: ApiProduct[]; onDetail:
 
 function Product() {
     const navigate = useNavigate();
-    const [activeCategory, setActiveCategory] = useState<number | string>("all");
+    const [searchParams] = useSearchParams();
+    const categoryParam = searchParams.get("category");
+
+    const [activeCategory, setActiveCategory] = useState<number | string>(
+        categoryParam ? (isNaN(Number(categoryParam)) ? categoryParam : Number(categoryParam)) : "all"
+    );
     const [productsList, setProductsList] = useState<ApiProduct[]>([]);
-    const [categoriesList, setCategoriesList] = useState<Array<{ id: number; label: string }>>([]);
+    const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        const cat = searchParams.get("category");
+        if (cat) {
+            setActiveCategory(isNaN(Number(cat)) ? cat : Number(cat));
+        }
+    }, [searchParams]);
 
     // Fetch Products from API
     useEffect(() => {
@@ -331,16 +393,7 @@ function Product() {
             try {
                 const res: any = await axiosClient.post(`${URL}/category/search`, {});
                 if (res && res.data) {
-                    const flatCats: Array<{ id: number; label: string }> = [];
-                    res.data.forEach((cat: CategoryItem) => {
-                        flatCats.push({ id: cat.id, label: cat.name });
-                        if (cat.children && cat.children.length > 0) {
-                            cat.children.forEach((subCat) => {
-                                flatCats.push({ id: subCat.id, label: subCat.name });
-                            });
-                        }
-                    });
-                    setCategoriesList(flatCats);
+                    setCategoriesList(res.data);
                 }
             } catch (err) {
                 console.error("Fetch categories error:", err);
@@ -350,9 +403,25 @@ function Product() {
         fetchCategories();
     }, []);
 
+    const targetCategoryIds = activeCategory === "all"
+        ? []
+        : (() => {
+            const numId = Number(activeCategory);
+            if (isNaN(numId)) return [];
+            const result = [numId];
+            const parent = categoriesList.find((c) => Number(c.id) === numId);
+            if (parent && parent.children && parent.children.length > 0) {
+                parent.children.forEach((child) => result.push(Number(child.id)));
+            }
+            return result;
+        })();
+
     const filtered = activeCategory === "all"
         ? productsList
-        : productsList.filter((p) => p.categoryId === Number(activeCategory) || p.category?.id === Number(activeCategory));
+        : productsList.filter((p) => {
+            const catId = Number(p.categoryId || p.category?.id);
+            return targetCategoryIds.includes(catId);
+        });
 
     const handleDetail = (id: number) => {
         navigate(config.routes.PRODUCT_DETAIL(String(id)));

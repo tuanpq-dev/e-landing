@@ -8,6 +8,8 @@ const Contact = React.lazy(() => import("../pages/Contact"));
 const ProductDetail = React.lazy(() => import("../pages/Product/detail"));
 const Login = React.lazy(() => import("../pages/Login"));
 const Register = React.lazy(() => import("../pages/Register"));
+const ForgotPassword = React.lazy(() => import("../pages/ForgotPassword"));
+const ResetPassword = React.lazy(() => import("../pages/ResetPassword"));
 const Cart = React.lazy(() => import("../pages/Cart"));
 const Checkout = React.lazy(() => import("../pages/Checkout"));
 const Profile = React.lazy(() => import("../pages/Profile"));
@@ -30,6 +32,14 @@ export const routeConfig = [
     {
         path: config.routes.REGISTER,
         element: <Register />,
+    },
+    {
+        path: config.routes.FORGOT_PASSWORD,
+        element: <ForgotPassword />,
+    },
+    {
+        path: config.routes.RESET_PASSWORD,
+        element: <ResetPassword />,
     },
     {
         path: config.routes.CART,
