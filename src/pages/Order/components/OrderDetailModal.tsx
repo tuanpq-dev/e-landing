@@ -37,7 +37,7 @@ function OrderDetailModalComponent({
             case "PROCESSING":
             case "PENDING":
                 return 1;
-            case "SHIPPED":
+            case "SHIPPING":
                 return 2;
             case "DELIVERED":
             case "COMPLETED":

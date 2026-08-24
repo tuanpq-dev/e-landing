@@ -6,6 +6,7 @@ import { parseProductImage, type ApiProduct } from "../index";
 import { URL } from "../../../config/apiUrl";
 import axiosClient from "../../../api/axiosClient";
 import './DetailProduct.css';
+import ProductReviewSection from "./ProductReviewSection";
 
 function ProductDetail() {
     const { id } = useParams<{ id: string }>();
@@ -380,6 +381,9 @@ function ProductDetail() {
                     </div>
                 </div>
             </div>
+
+            {/* Product Review Section */}
+            <ProductReviewSection productId={product?.id} />
         </div>
     );
 }

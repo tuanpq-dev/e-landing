@@ -1,5 +1,5 @@
 import { memo, useMemo } from "react";
-import { Button, Tag, Popconfirm, message } from "antd";
+import { Button, Tag, Popconfirm } from "antd";
 import {
     FileTextOutlined,
     CarOutlined,
@@ -18,6 +18,7 @@ interface OrderCardProps {
     onReOrder: (order: ApiOrder) => void;
     onCancelOrder: (orderId: number) => void;
     formatCurrency: (amount: number) => string;
+    onReview: (order: ApiOrder) => void;
 }
 
 function OrderCardComponent({
@@ -26,7 +27,12 @@ function OrderCardComponent({
     onReOrder,
     onCancelOrder,
     formatCurrency,
+    onReview,
 }: OrderCardProps) {
+    let isReviewed = false;
+    if (order.reviews && order.reviews.length) {
+        isReviewed = true
+    }
     const orderTotal = useMemo(() => {
         if (!order.items || order.items.length === 0) return 0;
         return order.items.reduce((sum, item) => {
@@ -38,16 +44,22 @@ function OrderCardComponent({
     const renderStatusTag = (status: string) => {
         const s = status ? status.toUpperCase() : "PROCESSING";
         switch (s) {
-            case "SHIPPED":
+            case "COMPLETED":
                 return (
-                    <Tag icon={<CarOutlined />} color="processing">
-                        Đang giao hàng
+                    <Tag icon={<CheckCircleOutlined />} color="success">
+                        Hoàn thành
                     </Tag>
                 );
             case "DELIVERED":
                 return (
                     <Tag icon={<CheckCircleOutlined />} color="success">
                         Đã giao hàng
+                    </Tag>
+                );
+            case "SHIPPING":
+                return (
+                    <Tag icon={<CarOutlined />} color="processing">
+                        Đang giao hàng
                     </Tag>
                 );
             case "PROCESSING":
@@ -69,7 +81,7 @@ function OrderCardComponent({
     };
 
     const isCancelable = order.status?.toUpperCase() === "PROCESSING" || order.status?.toUpperCase() === "PENDING";
-    const isDelivered = order.status?.toUpperCase() === "DELIVERED";
+    const isCompleted = order.status?.toUpperCase() === "COMPLETED" || order.status?.toUpperCase() === "DELIVERED";
 
     return (
         <div className="order-card">
@@ -125,6 +137,16 @@ function OrderCardComponent({
                         Xem chi tiết
                     </Button>
 
+                    {isCompleted && (
+                        <Button
+                            disabled={isReviewed}
+                            icon={<StarOutlined style={{ color: "#faad14" }} />}
+                            onClick={() => onReview(order)}
+                        >
+                            {isReviewed ? 'Đã đánh giá' : 'Đánh giá'}
+                        </Button>
+                    )}
+
                     <Button
                         type="primary"
                         className="order-btn-primary"
@@ -133,15 +155,6 @@ function OrderCardComponent({
                     >
                         Mua lại
                     </Button>
-
-                    {isDelivered && (
-                        <Button
-                            icon={<StarOutlined style={{ color: "#faad14" }} />}
-                            onClick={() => message.success("Cảm ơn bạn! Đã mở giao diện đánh giá sản phẩm.")}
-                        >
-                            Đánh giá
-                        </Button>
-                    )}
 
                     {isCancelable && (
                         <Popconfirm

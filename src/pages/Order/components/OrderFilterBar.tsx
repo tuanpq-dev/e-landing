@@ -19,8 +19,9 @@ function OrderFilterBarComponent({
         () => [
             { key: "all", label: "Tất cả đơn hàng" },
             { key: "PROCESSING", label: "Chờ xử lý" },
-            { key: "SHIPPED", label: "Đang giao" },
+            { key: "SHIPPING", label: "Đang giao" },
             { key: "DELIVERED", label: "Đã giao" },
+            { key: "COMPLETED", label: "Hoàn thành" },
             { key: "CANCELLED", label: "Đã hủy" },
         ],
         []

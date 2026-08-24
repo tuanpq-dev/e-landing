@@ -10,6 +10,7 @@ import { parseOrderItemImage } from "./types";
 import OrderFilterBar from "./components/OrderFilterBar";
 import OrderCard from "./components/OrderCard";
 import OrderDetailModal from "./components/OrderDetailModal";
+import OrderReviewModal from "./components/OrderReviewModal";
 import "./Order.css";
 
 const formatCurrency = (amount: number) => {
@@ -23,6 +24,7 @@ function Order() {
     const [activeStatus, setActiveStatus] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedOrderDetail, setSelectedOrderDetail] = useState<ApiOrder | null>(null);
+    const [selectedReviewOrder, setSelectedReviewOrder] = useState<ApiOrder | null>(null);
 
     const [currentUser, setCurrentUser] = useState<any>(() => {
         const saved = localStorage.getItem("user");
@@ -157,6 +159,14 @@ function Order() {
         setSelectedOrderDetail(null);
     }, []);
 
+    const handleReview = useCallback((order: ApiOrder) => {
+        setSelectedReviewOrder(order);
+    }, []);
+
+    const handleCloseReviewModal = useCallback(() => {
+        setSelectedReviewOrder(null);
+    }, []);
+
     return (
         <div className="order-page-container">
             {/* Breadcrumb Header */}
@@ -192,6 +202,7 @@ function Order() {
                             onViewDetail={handleViewDetail}
                             onReOrder={handleReOrder}
                             onCancelOrder={handleCancelOrder}
+                            onReview={handleReview}
                             formatCurrency={formatCurrency}
                         />
                     ))}
@@ -222,6 +233,12 @@ function Order() {
                 onClose={handleCloseModal}
                 onReOrder={handleReOrder}
                 formatCurrency={formatCurrency}
+            />
+
+            {/* Order Review Modal */}
+            <OrderReviewModal
+                order={selectedReviewOrder}
+                onClose={handleCloseReviewModal}
             />
         </div>
     );
