@@ -43,6 +43,7 @@ export interface ApiOrder {
     createdAt: string;
     updatedAt?: string;
     items: ApiOrderItem[];
+    reviews: any;
 }
 
 export function parseOrderItemImage(item: ApiOrderItem): string {
