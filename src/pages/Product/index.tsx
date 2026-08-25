@@ -7,6 +7,7 @@ import { colors, priceRanges, sizes } from "./productFilterConfig";
 import config from "../../config/config";
 import { URL } from "../../config/apiUrl";
 import axiosClient from "../../api/axiosClient";
+import { searchProductsApi } from "../../api/productApi";
 
 export type ApiProduct = {
     id: number;
@@ -370,10 +371,15 @@ function Product() {
         const fetchProducts = async () => {
             setLoading(true);
             try {
-                const res: any = await axiosClient.post(`${URL}/product/search`, {
+                const searchVal = searchParams.get("search");
+                const payload: any = {
                     page: 1,
                     pageSize: 50,
-                });
+                };
+                if (searchVal && searchVal.trim()) {
+                    payload.search = searchVal.trim();
+                }
+                const res: any = await searchProductsApi(payload);
                 if (res && res.data) {
                     setProductsList(res.data);
                 }
@@ -385,7 +391,7 @@ function Product() {
         };
 
         fetchProducts();
-    }, []);
+    }, [searchParams]);
 
     // Fetch Categories from API
     useEffect(() => {

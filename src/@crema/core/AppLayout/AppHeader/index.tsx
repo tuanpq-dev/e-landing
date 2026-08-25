@@ -10,12 +10,14 @@ import {
     ShoppingCartOutlined,
     UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Dropdown, Layout, Popover, message } from "antd";
+import { Avatar, Button, Dropdown, Layout, Popover, Spin, message } from "antd";
 import type { MenuProps } from "antd";
 import { useLocation, useNavigate } from "react-router";
 import config from "../../../../config/config";
 import { URL } from "../../../../config/apiUrl";
 import axiosClient from "../../../../api/axiosClient";
+import { searchProductsApi } from "../../../../api/productApi";
+import { parseProductImage, type ApiProduct } from "../../../../pages/Product";
 import "./AppHeader.css";
 
 const { Header } = Layout;
@@ -145,9 +147,56 @@ function AppHeader() {
         };
     }, []);
 
+    const [suggestions, setSuggestions] = useState<ApiProduct[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
+    // Sync search input with URL search query param
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const q = params.get("search");
+        if (q) {
+            setSearchQuery(q);
+        }
+    }, [location.search]);
+
+    // Live search suggestions using searchProductsApi (/product/search)
+    useEffect(() => {
+        const query = searchQuery.trim();
+        if (!query) {
+            setSuggestions([]);
+            setShowSuggestions(false);
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setIsSearching(true);
+            try {
+                const res: any = await searchProductsApi({
+                    search: query,
+                    page: 1,
+                    pageSize: 5,
+                });
+                const list = Array.isArray(res) ? res : res?.data || [];
+                if (Array.isArray(list)) {
+                    setSuggestions(list);
+                    setShowSuggestions(true);
+                }
+            } catch (err) {
+                console.error("Live search error:", err);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
     const handleSearch = () => {
-        if (searchQuery.trim()) {
-            navigate(`/${config.routes.PRODUCT}?search=${encodeURIComponent(searchQuery.trim())}`);
+        setShowSuggestions(false);
+        const query = searchQuery.trim();
+        if (query) {
+            navigate(`/${config.routes.PRODUCT}?search=${encodeURIComponent(query)}`);
         } else {
             navigate(`/${config.routes.PRODUCT}`);
         }
@@ -280,12 +329,20 @@ function AppHeader() {
                     </div>
 
                     {/* Central Search Bar */}
-                    <div className="sea-search-wrapper">
+                    <div
+                        className="sea-search-wrapper"
+                        onBlur={(e) => {
+                            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                                setShowSuggestions(false);
+                            }
+                        }}
+                    >
                         <div className="sea-search-box">
                             <input
                                 className="sea-search-input"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                                 placeholder="Nhập từ khóa tìm kiếm sản phẩm thời trang..."
                             />
@@ -295,6 +352,57 @@ function AppHeader() {
                                 onClick={handleSearch}
                             />
                         </div>
+
+                        {/* Search Suggestions Dropdown */}
+                        {showSuggestions && searchQuery.trim() && (
+                            <div className="sea-search-suggestions">
+                                {isSearching ? (
+                                    <div className="sea-search-loading">
+                                        <Spin size="small" /> <span style={{ marginLeft: 8 }}>Đang tìm kiếm...</span>
+                                    </div>
+                                ) : suggestions.length === 0 ? (
+                                    <div className="sea-search-empty">
+                                        Không tìm thấy sản phẩm phù hợp với "{searchQuery}"
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="sea-search-suggestions-list">
+                                            {suggestions.map((item) => {
+                                                const imgUrl = parseProductImage(item.image, item.id);
+                                                const price = typeof item.basePrice === "number"
+                                                    ? item.basePrice
+                                                    : parseFloat(String(item.basePrice || 0));
+
+                                                return (
+                                                    <div
+                                                        key={item.id}
+                                                        className="sea-search-suggestion-item"
+                                                        onClick={() => {
+                                                            setShowSuggestions(false);
+                                                            navigate(`/product/${item.id}`);
+                                                        }}
+                                                    >
+                                                        <img src={imgUrl} alt={item.name} className="sea-search-item-img" />
+                                                        <div className="sea-search-item-info">
+                                                            <div className="sea-search-item-name">{item.name}</div>
+                                                            <div className="sea-search-item-price">
+                                                                {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(price)}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                        <div
+                                            className="sea-search-view-all"
+                                            onClick={handleSearch}
+                                        >
+                                            Xem tất cả kết quả cho "{searchQuery}" →
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Right Header Actions */}
