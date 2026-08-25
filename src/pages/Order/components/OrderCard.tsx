@@ -11,6 +11,7 @@ import {
 } from "@ant-design/icons";
 import type { ApiOrder } from "../types";
 import { parseOrderItemImage } from "../types";
+import { formatDateTime } from "../../../utils/dateUtils";
 
 interface OrderCardProps {
     order: ApiOrder;
@@ -93,13 +94,7 @@ function OrderCardComponent({
                         #{order.orderCode || order.id}
                     </span>
                     <span className="order-date">
-                        Đặt ngày: {new Date(order.createdAt).toLocaleDateString("vi-VN", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        })}
+                        Đặt ngày: {formatDateTime(order.createdAt)}
                     </span>
                 </div>
                 <div>{renderStatusTag(order.status)}</div>

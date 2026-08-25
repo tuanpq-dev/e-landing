@@ -16,7 +16,7 @@ import { ReviewReplyList } from "./ReviewReplyList";
 interface ReviewItemCardProps {
     review: ReviewData;
     onToggleReaction: (reviewId: number, type: "like" | "heart") => void;
-    onSubmitReply: (reviewId: number, content: string) => void;
+    onSubmitReply: (reviewId: number, content: string) => Promise<void> | void;
     onToggleReplyLike: (reviewId: number, replyId: number) => void;
     onPreviewImage?: (imgUrl: string) => void;
 }
@@ -30,15 +30,23 @@ export function ReviewItemCard({
 }: ReviewItemCardProps) {
     const [isReplying, setIsReplying] = useState<boolean>(false);
     const [replyText, setReplyText] = useState<string>("");
+    const [submittingReply, setSubmittingReply] = useState<boolean>(false);
 
-    const handleSendReply = () => {
+    const handleSendReply = async () => {
         if (!replyText.trim()) {
             message.warning("Vui lòng nhập nội dung phản hồi!");
             return;
         }
-        onSubmitReply(review.id, replyText.trim());
-        setReplyText("");
-        setIsReplying(false);
+        setSubmittingReply(true);
+        try {
+            await onSubmitReply(review.id, replyText.trim());
+            setReplyText("");
+            setIsReplying(false);
+        } catch (err) {
+            console.error("Submit reply error:", err);
+        } finally {
+            setSubmittingReply(false);
+        }
     };
 
     return (
@@ -139,6 +147,7 @@ export function ReviewItemCard({
                             type="primary"
                             size="small"
                             icon={<SendOutlined />}
+                            loading={submittingReply}
                             onClick={handleSendReply}
                         >
                             Gửi
