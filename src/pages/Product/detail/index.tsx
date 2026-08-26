@@ -20,6 +20,7 @@ function ProductDetail() {
     const [qty, setQty] = useState<number>(1);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const fetchProductDetail = async () => {
             if (!id) return;
             setLoading(true);

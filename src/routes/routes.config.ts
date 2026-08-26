@@ -23,7 +23,7 @@ const routes = {
 
     PROFILE: 'profile',
     PRODUCT: 'product',
-    PRODUCT_DETAIL: (id: string) => `/product/${id}`,
+    PRODUCT_DETAIL: (id: number) => `/product/${id}`,
     POLICY: 'policy',
 
     WISHLIST: 'wishlist',
