@@ -73,6 +73,97 @@
 .sea-search-wrapper {
   flex: 1;
   max-width: 540px;
+  position: relative;
+}
+
+.sea-search-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1200;
+  overflow: hidden;
+}
+
+.sea-search-loading,
+.sea-search-empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #666666;
+}
+
+.sea-search-suggestions-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.sea-search-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sea-search-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.sea-search-suggestion-item:hover {
+  background: #fdfaf6;
+}
+
+.sea-search-item-img {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #eee;
+}
+
+.sea-search-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sea-search-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #22242a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sea-search-item-price {
+  font-size: 12px;
+  font-weight: 600;
+  color: #c89968;
+  margin-top: 2px;
+}
+
+.sea-search-view-all {
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #22242a;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sea-search-view-all:hover {
+  background: #22242a;
+  color: #ffffff;
 }
 
 .sea-search-box {

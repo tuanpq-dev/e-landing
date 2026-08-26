@@ -6,6 +6,7 @@ import axiosClient from "../../../api/axiosClient";
 import { URL } from "../../../config/apiUrl";
 import { parseProductImage, type ApiProduct } from "../../Product";
 import "../../Product/Product.css";
+import config from "../../../config/config";
 
 function formatPrice(n: number | string) {
     const num = typeof n === "string" ? parseFloat(n) || 0 : n;
@@ -42,7 +43,7 @@ export const ProductGrid: React.FC = () => {
     }, []);
 
     const handleDetail = (id: number) => {
-        navigate(`/product/${id}`);
+        navigate(`/${config.routes.PRODUCT_DETAIL(id)}`);
     };
 
     if (!loading && (!products || products.length === 0)) {

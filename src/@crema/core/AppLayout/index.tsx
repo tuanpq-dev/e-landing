@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Layout } from "antd";
 import { useLocation } from "react-router";
 import AppHeader from "./AppHeader";
@@ -9,6 +10,11 @@ type AppLayoutProps = React.PropsWithChildren;
 
 function AppLayout({ children }: AppLayoutProps) {
     const location = useLocation();
+
+    // Scroll to top of window on route change
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [location.pathname, location.search]);
 
     // Check if the current path is Auth page (Login, Register, Forgot Password, Reset Password)
     const isAuthPage =
